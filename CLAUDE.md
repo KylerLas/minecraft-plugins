@@ -44,14 +44,14 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 
 ## Commands
 
-| Command                      | Permission                | Description                                              |
-| ---------------------------- | ------------------------- | -------------------------------------------------------- |
-| `/announce`                  | `kai.announce` (OPs only) | Broadcasts a random message as title + chat              |
-| `/pay <player> <amount>`     | anyone                    | Pay another player gold from your inventory              |
-| `/request <player> <amount>` | anyone                    | Request gold from another player                         |
-| `/requests sent`             | anyone                    | View outgoing requests with [Cancel] buttons             |
-| `/requests received`         | anyone                    | View incoming requests with [Accept] / [Decline] buttons |
-| `/goldscore`                 | anyone                    | Show full sorted gold leaderboard in chat                |
+| Command                      | Permission               | Description                                              |
+| ---------------------------- | ------------------------ | -------------------------------------------------------- |
+| `/announce`                  | `kai.announce` (OP only) | Broadcasts a random message as title + chat              |
+| `/pay <player> <amount>`     | anyone                   | Pay another player gold from your inventory              |
+| `/request <player> <amount>` | anyone                   | Request gold from another player                         |
+| `/requests sent`             | anyone                   | View outgoing requests with [Cancel] buttons             |
+| `/requests received`         | anyone                   | View incoming requests with [Accept] / [Decline] buttons |
+| `/goldscore`                 | anyone                   | Show full sorted gold leaderboard in chat                |
 
 ---
 
