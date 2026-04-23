@@ -61,6 +61,7 @@ The deploy script:
 | `/request <player> <amount>` | anyone | Request gold from another player |
 | `/requests sent` | anyone | View your outgoing requests with [Cancel] buttons |
 | `/requests received` | anyone | View incoming requests with [Accept] / [Decline] buttons |
+| `/goldscore` | anyone | Show sorted gold leaderboard in chat |
 
 ## Integration Progress
 

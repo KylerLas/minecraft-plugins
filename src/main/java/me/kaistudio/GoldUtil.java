@@ -24,8 +24,7 @@ public class GoldUtil {
     }
 
     public static String format(int nuggets) {
-        if (nuggets % 9 == 0) return (nuggets / 9) + " gold";
-        return String.format("%.2f gold", nuggets / 9.0);
+        return Math.round(nuggets / 9.0) + " gold";
     }
 
     // Remove nuggets worth of gold from inventory, giving back exact change

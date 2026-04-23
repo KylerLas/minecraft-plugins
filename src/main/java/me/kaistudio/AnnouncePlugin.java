@@ -96,6 +96,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new PayCommand(this).build(), "Pay another player gold from your inventory");
             event.registrar().register(requestCommand.buildRequest(), "Request gold from another player");
             event.registrar().register(requestCommand.buildRequests(), "View and manage your gold requests");
+            event.registrar().register(new GoldScoreCommand().build(), "View the gold leaderboard");
         });
 
         getLogger().info("AnnouncePlugin enabled!");
