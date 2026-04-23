@@ -19,10 +19,19 @@
 
 ## Block & Chest Protection
 - [ ] Break another player's chest — blocked with red message
-- [ ] Open another player's chest (right-click) — blocked with red message
+- [ ] Open another player's chest — opens and contents are visible, but nothing can be moved
+- [ ] Shift-click item from own inventory into another player's chest — blocked
+- [ ] Drag item into another player's chest — blocked
 - [ ] Break another player's gold block — blocked with red message
 - [ ] Break your own chest — works, chest untracked
 - [ ] Break your own gold block — works, block untracked
+
+## Gold Drop Ownership
+- [ ] Drop a gold ingot — another player cannot pick it up
+- [ ] Drop a gold nugget — another player cannot pick it up
+- [ ] Drop a gold block — another player cannot pick it up
+- [ ] The player who dropped it can still pick it back up
+- [ ] Dropped gold despawns normally after 5 minutes
 
 ## Leaderboard
 - [ ] `/goldscore` — players sorted by gold, top 3 in gold/silver/bronze colours

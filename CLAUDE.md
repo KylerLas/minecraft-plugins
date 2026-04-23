@@ -29,6 +29,7 @@ my-first-plugin/
     │   ├── RequestCommand.java        ← /request and /requests command logic
     │   ├── RequestManager.java        ← in-memory store of pending gold requests
     │   ├── Request.java               ← request data class
+    │   ├── GoldDropListener.java      ← tracks dropped gold items; only the dropper can pick them up
     │   └── ChestTracker.java          ← YAML-backed tracker for player chests + placed gold blocks
     └── resources/
         ├── plugin.yml                 ← plugin metadata + permission declarations
@@ -72,7 +73,8 @@ The deploy script:
 - [x] Gold balance — live scan every 10s, inventory + chests + placed gold blocks (`minecraft_players`)
 - [x] Transaction tracking — sent/received via `/pay` and `/request` (`minecraft_players`)
 - [x] Gold leaderboard — sidebar scoreboard (always visible, right side of screen) + `/goldscore`
-- [x] Block/chest ownership protection — players cannot break or open blocks they don't own
+- [x] Block/chest ownership protection — players cannot break others' blocks; chests are view-only for non-owners
+- [x] Gold drop ownership — only the dropper can pick up gold they dropped; enforces /pay and /request usage
 - [ ] Insurance tier — `/insurance` command (`minecraft_players`)
 
 ---
@@ -127,8 +129,14 @@ The deploy script:
 
 ### Block & Chest Ownership Protection
 - **Break protection**: if a player tries to break a tracked chest or gold block they don't own, the event is cancelled and they receive a red error message
-- **Chest access protection**: right-clicking another player's chest cancels the interaction — the inventory never opens
+- **Chest view-only**: other players can open and view a chest's contents but cannot move, take, place, or shift-click items — `InventoryClickEvent` and `InventoryDragEvent` are cancelled for non-owners; double chests check both halves
 - Untracked chests and gold blocks (placed before the plugin was installed) are unprotected
+
+### Gold Drop Ownership
+- When a player drops a gold nugget, ingot, or block, the item entity UUID is recorded in `GoldDropListener`
+- Other players' `EntityPickupItemEvent` is cancelled for that item — only the dropper can pick it back up
+- Entries are cleaned up when the item is picked up by the owner or despawns
+- Enforces use of `/pay` and `/request` for gold transfers
 
 ---
 
