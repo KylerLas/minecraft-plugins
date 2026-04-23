@@ -1,0 +1,3 @@
+cosmos-connection-string: "YOUR_CONNECTION_STRING_HERE"
+cosmos-database: "marketplace_db"
+cosmos-collection: "minecraft_fines"
