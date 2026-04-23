@@ -65,10 +65,10 @@ public class DatabaseManager {
         );
     }
 
-    public void updatePlayerGold(String playerUuid, int nuggets) {
+    public void updatePlayerGold(String playerUuid, double gold) {
         players.updateOne(
             Filters.eq("playerUuid", playerUuid),
-            Updates.set("gold", nuggets)
+            Updates.set("gold", gold)
         );
     }
 

@@ -57,9 +57,9 @@ public class GoldScanner implements Runnable {
             // Update sidebar scoreboard (rounded to whole gold units)
             obj.getScore(player.getName()).setScore((int) Math.round(nuggets / 9.0));
 
-            final int total = nuggets;
+            final double gold = Math.round((nuggets / 9.0) * 100) / 100.0;
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
-                plugin.getDatabaseManager().updatePlayerGold(player.getUniqueId().toString(), total)
+                plugin.getDatabaseManager().updatePlayerGold(player.getUniqueId().toString(), gold)
             );
         }
     }

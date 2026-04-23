@@ -41,7 +41,7 @@ public class GoldScoreCommand {
                 return score.isScoreSet();
             })
             .map(entry -> Map.entry(entry, obj.getScore(entry).getScore()))
-            .sorted(Comparator.<Map.Entry<String, Integer>>comparingByValue().reversed())
+            .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
             .collect(Collectors.toList());
 
         if (sorted.isEmpty()) {

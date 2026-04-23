@@ -21,7 +21,7 @@ my-first-plugin/
     │   ├── ChickenDeathListener.java  ← chicken kill → issues fine + logs to DB
     │   ├── PlayerJoinListener.java    ← upserts player profile; notifies of pending requests
     │   ├── PlayerDeathListener.java   ← increments death counter on player death
-    │   ├── BlockListener.java         ← tracks chest and gold block place/break events
+    │   ├── BlockListener.java         ← tracks chest and gold block place/break events; enforces ownership protection
     │   ├── GoldScanner.java           ← repeating task every 10s: tallies gold, updates DB + scoreboard
     │   ├── GoldUtil.java              ← gold counting, rounding, add/remove from inventory
     │   ├── GoldScoreCommand.java      ← /goldscore — shows sorted leaderboard in chat
@@ -72,6 +72,7 @@ The deploy script:
 - [x] Gold balance — live scan every 10s, inventory + chests + placed gold blocks (`minecraft_players`)
 - [x] Transaction tracking — sent/received via `/pay` and `/request` (`minecraft_players`)
 - [x] Gold leaderboard — sidebar scoreboard (always visible, right side of screen) + `/goldscore`
+- [x] Block/chest ownership protection — players cannot break or open blocks they don't own
 - [ ] Insurance tier — `/insurance` command (`minecraft_players`)
 
 ---
@@ -124,6 +125,11 @@ The deploy script:
 - **Gold block placed** → recorded as 81 nuggets (9 gold) owned by that player
 - **Gold block broken** → removed from tracker; item drops naturally and is picked up by next scan
 
+### Block & Chest Ownership Protection
+- **Break protection**: if a player tries to break a tracked chest or gold block they don't own, the event is cancelled and they receive a red error message
+- **Chest access protection**: right-clicking another player's chest cancels the interaction — the inventory never opens
+- Untracked chests and gold blocks (placed before the plugin was installed) are unprotected
+
 ---
 
 ## Database (Azure Cosmos DB — MongoDB API)
@@ -163,7 +169,7 @@ Mutable player profile — one document per UUID, upserted by the plugin.
 }
 ```
 
-`gold` is stored in raw nugget units internally. Divide by 9 and round for display.
+`gold` is stored as a decimal gold value (e.g. `11.89`), rounded to 2 decimal places. 1 ingot = 1, 1 block = 9, 1 nugget = 1/9. Round to nearest whole number for display.
 
 ### DatabaseManager methods
 | Method | Collection | Operation |

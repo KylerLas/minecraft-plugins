@@ -108,4 +108,14 @@ public class ChestTracker {
         }
         return count;
     }
+
+    public Optional<UUID> getChestOwner(Location loc) {
+        String uuid = chests.get(key(loc));
+        return uuid == null ? Optional.empty() : Optional.of(UUID.fromString(uuid));
+    }
+
+    public Optional<UUID> getGoldBlockOwner(Location loc) {
+        String uuid = goldBlocks.get(key(loc));
+        return uuid == null ? Optional.empty() : Optional.of(UUID.fromString(uuid));
+    }
 }
