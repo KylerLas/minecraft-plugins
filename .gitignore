@@ -1,1 +1,3 @@
 target/
+watch-and-deploy.sh
+.deploy-watch-enabled
