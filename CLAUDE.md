@@ -33,7 +33,7 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 - 1 gold block = 9 gold
 - **DB stores gold as a decimal rounded to 2 places** (e.g. `11.89`)
 - **Display always rounds to the nearest whole number** (e.g. `12`)
-- A player's total gold = inventory + owned chests + placed gold blocks
+- A player's total gold = inventory + owned chests + owned barrels + ender chest + placed gold blocks
 - Gold can only be transferred between players via `/pay` or `/request` — dropping gold locks it to the dropper
 
 ---
@@ -57,8 +57,9 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 - [x] Gold balance — live scan every 10s, inventory + chests + placed gold blocks
 - [x] Transaction tracking — sent/received via `/pay` and `/request`
 - [x] Gold leaderboard — sidebar scoreboard + `/goldscore`
-- [x] Block/chest ownership — players cannot break others' blocks; chests are view-only for non-owners
+- [x] Block/chest/barrel/ender chest ownership — break protection + view-only for chests and barrels
 - [x] Gold drop ownership — dropped gold can only be picked up by the dropper
+- [x] Barrel and ender chest gold tracking — barrel contents + player's ender chest scanned every 10s
 - [ ] Insurance tier — `/insurance` command (`minecraft_players`)
 
 ---

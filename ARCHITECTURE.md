@@ -39,7 +39,8 @@ Quick navigation guide for Claude. Jump here first when adding a feature or fixi
 | Change what gold counts toward a player's total | `GoldScanner.run()` |
 | Change scoreboard display | `GoldScanner.run()` (sidebar) or `GoldScoreCommand` (chat) |
 | Add a new tracked block type | `BlockListener.onBlockPlace()` + `BlockListener.onBlockBreak()` |
-| Change chest ownership rules | `BlockListener` + `ChestTracker` |
+| Change chest/barrel ownership rules | `BlockListener` + `ChestTracker` |
+| Change what counts toward a player's gold total | `GoldScanner.run()` — inventory, tracked chests/barrels, ender chest, placed gold blocks |
 | Change who can pick up dropped items | `GoldDropListener` |
 | Change request lifecycle | `RequestCommand` + `RequestManager` |
 | Add a player profile field | `DatabaseManager.upsertPlayer()` + DB schema in `CLAUDE.md` |
@@ -71,12 +72,11 @@ Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getDatabaseMana
 collection.updateOne(filter, updates, new UpdateOptions().upsert(true));
 ```
 
-**Chest/double chest ownership lookup**:
+**Storage ownership lookup** (chests, barrels, ender chests all use the same tracker):
 ```java
-// Single chest
 plugin.getChestTracker().getChestOwner(block.getLocation()) // → Optional<UUID>
-
-// Double chest — check both halves via DoubleChest.getLeftSide() / getRightSide()
+// Double chests: check both halves via DoubleChest.getLeftSide() / getRightSide()
+// Ender chests: tracked for break protection only — inventory always belongs to the opening player
 ```
 
 **Clickable chat buttons** — used in `/requests`:

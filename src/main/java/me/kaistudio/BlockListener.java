@@ -3,6 +3,7 @@ package me.kaistudio;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
@@ -31,10 +32,13 @@ public class BlockListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         Block block = event.getBlockPlaced();
+        Material type = block.getType();
 
-        if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
+        if (type == Material.CHEST || type == Material.TRAPPED_CHEST || type == Material.BARREL) {
             plugin.getChestTracker().trackChest(block.getLocation(), player.getUniqueId());
-        } else if (block.getType() == Material.GOLD_BLOCK) {
+        } else if (type == Material.ENDER_CHEST) {
+            plugin.getChestTracker().trackChest(block.getLocation(), player.getUniqueId());
+        } else if (type == Material.GOLD_BLOCK) {
             plugin.getChestTracker().trackGoldBlock(block.getLocation(), player.getUniqueId());
         }
     }
@@ -43,16 +47,26 @@ public class BlockListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
         Player player = event.getPlayer();
+        Material type = block.getType();
 
-        if (block.getType() == Material.CHEST || block.getType() == Material.TRAPPED_CHEST) {
+        if (type == Material.CHEST || type == Material.TRAPPED_CHEST || type == Material.BARREL) {
             Optional<UUID> owner = plugin.getChestTracker().getChestOwner(block.getLocation());
             if (owner.isPresent() && !owner.get().equals(player.getUniqueId())) {
                 event.setCancelled(true);
-                player.sendMessage(Component.text("That chest belongs to someone else.", NamedTextColor.RED));
+                String label = type == Material.BARREL ? "barrel" : "chest";
+                player.sendMessage(Component.text("That " + label + " belongs to someone else.", NamedTextColor.RED));
                 return;
             }
             plugin.getChestTracker().untrackChest(block.getLocation());
-        } else if (block.getType() == Material.GOLD_BLOCK) {
+        } else if (type == Material.ENDER_CHEST) {
+            Optional<UUID> owner = plugin.getChestTracker().getChestOwner(block.getLocation());
+            if (owner.isPresent() && !owner.get().equals(player.getUniqueId())) {
+                event.setCancelled(true);
+                player.sendMessage(Component.text("That ender chest belongs to someone else.", NamedTextColor.RED));
+                return;
+            }
+            plugin.getChestTracker().untrackChest(block.getLocation());
+        } else if (type == Material.GOLD_BLOCK) {
             Optional<UUID> owner = plugin.getChestTracker().getGoldBlockOwner(block.getLocation());
             if (owner.isPresent() && !owner.get().equals(player.getUniqueId())) {
                 event.setCancelled(true);
@@ -63,20 +77,20 @@ public class BlockListener implements Listener {
         }
     }
 
-    // Allow opening other players' chests to view, but block any interaction that moves items
+    // Allow opening other players' chests/barrels to view, but block any interaction that moves items
+    // Ender chests are excluded — they always show the opening player's own inventory
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
         Inventory top = event.getView().getTopInventory();
-        if (!isOtherPlayersChest(top, player)) return;
+        if (!isOtherPlayersStorage(top, player)) return;
 
-        // Block clicks directly inside the chest
         if (top.equals(event.getClickedInventory())) {
             event.setCancelled(true);
             return;
         }
 
-        // Block shift-clicks from player's own inventory into the chest
+        // Block shift-clicks from player's own inventory into the storage
         if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             event.setCancelled(true);
         }
@@ -85,9 +99,8 @@ public class BlockListener implements Listener {
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
-        if (!isOtherPlayersChest(event.getView().getTopInventory(), player)) return;
+        if (!isOtherPlayersStorage(event.getView().getTopInventory(), player)) return;
 
-        // Block any drag that touches slots in the chest (slot indices < top inventory size)
         int topSize = event.getView().getTopInventory().getSize();
         for (int slot : event.getRawSlots()) {
             if (slot < topSize) {
@@ -97,21 +110,24 @@ public class BlockListener implements Listener {
         }
     }
 
-    private boolean isOtherPlayersChest(Inventory inv, Player player) {
+    private boolean isOtherPlayersStorage(Inventory inv, Player player) {
         InventoryHolder holder = inv.getHolder();
         if (holder instanceof org.bukkit.block.Chest chest) {
-            return isLockedChest(chest.getLocation(), player);
+            return isLockedStorage(chest.getLocation(), player);
         }
         if (holder instanceof DoubleChest doubleChest) {
             if (doubleChest.getLeftSide() instanceof org.bukkit.block.Chest left
-                    && isLockedChest(left.getLocation(), player)) return true;
+                    && isLockedStorage(left.getLocation(), player)) return true;
             if (doubleChest.getRightSide() instanceof org.bukkit.block.Chest right
-                    && isLockedChest(right.getLocation(), player)) return true;
+                    && isLockedStorage(right.getLocation(), player)) return true;
+        }
+        if (holder instanceof Barrel barrel) {
+            return isLockedStorage(barrel.getLocation(), player);
         }
         return false;
     }
 
-    private boolean isLockedChest(org.bukkit.Location loc, Player player) {
+    private boolean isLockedStorage(org.bukkit.Location loc, Player player) {
         Optional<UUID> owner = plugin.getChestTracker().getChestOwner(loc);
         return owner.isPresent() && !owner.get().equals(player.getUniqueId());
     }

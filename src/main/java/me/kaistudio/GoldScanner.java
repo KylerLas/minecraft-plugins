@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Barrel;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
@@ -40,16 +41,25 @@ public class GoldScanner implements Runnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             int nuggets = GoldUtil.countNuggets(player.getInventory());
 
-            // Chest gold — deduplicate double chests by inventory reference
+            // Chests and barrels — deduplicate double chests by inventory reference
+            // Ender chest locations are tracked for break protection but skipped here
             Set<Inventory> counted = new HashSet<>();
-            List<Location> chestLocs = plugin.getChestTracker().getChestLocations(player.getUniqueId());
-            for (Location loc : chestLocs) {
+            List<Location> trackedLocs = plugin.getChestTracker().getChestLocations(player.getUniqueId());
+            for (Location loc : trackedLocs) {
                 Block block = loc.getBlock();
-                if (!(block.getState() instanceof Chest chest)) continue;
-                Inventory inv = chest.getInventory();
-                if (!counted.add(inv)) continue;
+                Inventory inv = null;
+                if (block.getState() instanceof Chest chest) {
+                    inv = chest.getInventory();
+                } else if (block.getState() instanceof Barrel barrel) {
+                    inv = barrel.getInventory();
+                }
+                // Ender chest blocks return null here and are intentionally skipped
+                if (inv == null || !counted.add(inv)) continue;
                 nuggets += GoldUtil.countNuggets(inv);
             }
+
+            // Ender chest — always the player's own private inventory, scanned directly
+            nuggets += GoldUtil.countNuggets(player.getEnderChest());
 
             // Placed gold blocks (each = 81 nuggets)
             nuggets += plugin.getChestTracker().getGoldBlockCount(player.getUniqueId()) * 81;

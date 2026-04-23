@@ -22,9 +22,19 @@
 - [ ] Open another player's chest — opens and contents are visible, but nothing can be moved
 - [ ] Shift-click item from own inventory into another player's chest — blocked
 - [ ] Drag item into another player's chest — blocked
+- [ ] Break another player's barrel — blocked with red message
+- [ ] Open another player's barrel — view-only, no interaction allowed
+- [ ] Break another player's ender chest — blocked with red message
+- [ ] Open any ender chest — always shows your own contents (no protection needed)
 - [ ] Break another player's gold block — blocked with red message
 - [ ] Break your own chest — works, chest untracked
+- [ ] Break your own barrel — works, barrel untracked
 - [ ] Break your own gold block — works, block untracked
+
+## Barrel & Ender Chest Gold Tracking
+- [ ] Place a barrel, put gold in it, wait for scan — barrel gold included in total
+- [ ] Put gold in your ender chest, wait for scan — ender chest gold included in total
+- [ ] Break your barrel — gold is removed from total on next scan
 
 ## Gold Drop Ownership
 - [ ] Drop a gold ingot — another player cannot pick it up
