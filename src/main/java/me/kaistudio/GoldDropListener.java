@@ -1,5 +1,6 @@
 package me.kaistudio;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
