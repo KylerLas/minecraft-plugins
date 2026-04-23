@@ -78,6 +78,8 @@ public class AnnouncePlugin extends JavaPlugin {
         getLogger().info("Connected to Cosmos DB!");
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         getLogger().info("AnnouncePlugin enabled!");
     }
 }
