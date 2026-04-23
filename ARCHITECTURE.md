@@ -1,0 +1,93 @@
+# Architecture
+
+Quick navigation guide for Claude. Jump here first when adding a feature or fixing a bug.
+
+---
+
+## File Map
+
+| File | Owns |
+|------|------|
+| `AnnouncePlugin.java` | Plugin entry point — registers all listeners and commands in `onEnable()` |
+| `DatabaseManager.java` | All Cosmos DB reads/writes — one method per operation |
+| `ChestTracker.java` | YAML-backed in-memory map of chest and gold block locations → owner UUID |
+| `GoldUtil.java` | Gold counting, formatting, add/remove from inventory |
+| `GoldScanner.java` | Repeating task (every 10s) — tallies gold, updates DB + sidebar scoreboard |
+| `GoldScoreCommand.java` | `/goldscore` — reads scoreboard and prints leaderboard to chat |
+| `GoldDropListener.java` | Tracks dropped gold item entities — only the dropper can pick them back up |
+| `BlockListener.java` | Block place/break tracking; chest/gold block ownership protection; chest view-only enforcement |
+| `PayCommand.java` | `/pay <player> <amount>` — physical gold transfer via inventory |
+| `RequestCommand.java` | `/request` and `/requests` — gold request flow with clickable chat buttons |
+| `RequestManager.java` | In-memory store of pending `Request` objects |
+| `Request.java` | Data class: requester, target, amount, status |
+| `PlayerJoinListener.java` | Upserts player profile on join; notifies of pending requests |
+| `PlayerDeathListener.java` | Increments death counter on death |
+| `ChickenDeathListener.java` | Chicken kill → Court Officer spawns, fine note drops, fine logged to DB |
+
+---
+
+## Where to Find Specific Functionality
+
+| I want to… | Look in |
+|------------|---------|
+| Add a new command | Create a new `Command` class, register in `AnnouncePlugin.onEnable()` |
+| Add a new DB operation | Add a method to `DatabaseManager` |
+| Change gold counting logic | `GoldUtil.countNuggets()` |
+| Change gold display format | `GoldUtil.format()` |
+| Change how gold is added/removed from inventory | `GoldUtil.addGold()` / `GoldUtil.removeGold()` |
+| Change how often gold is scanned | `GoldScanner` task interval in `AnnouncePlugin.onEnable()` |
+| Change what gold counts toward a player's total | `GoldScanner.run()` |
+| Change scoreboard display | `GoldScanner.run()` (sidebar) or `GoldScoreCommand` (chat) |
+| Add a new tracked block type | `BlockListener.onBlockPlace()` + `BlockListener.onBlockBreak()` |
+| Change chest ownership rules | `BlockListener` + `ChestTracker` |
+| Change who can pick up dropped items | `GoldDropListener` |
+| Change request lifecycle | `RequestCommand` + `RequestManager` |
+| Add a player profile field | `DatabaseManager.upsertPlayer()` + DB schema in `CLAUDE.md` |
+| Change fine behaviour | `ChickenDeathListener` + `DatabaseManager.logFine()` |
+
+---
+
+## Key Patterns
+
+**Commands** — registered via Paper's Brigadier lifecycle API:
+```java
+getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+    event.registrar().register(new MyCommand(this).build(), "description");
+});
+```
+
+**Events** — listeners implement `Listener` with `@EventHandler`, registered in `AnnouncePlugin.onEnable()`:
+```java
+Bukkit.getPluginManager().registerEvents(new MyListener(this), this);
+```
+
+**Async DB writes** — all DB calls go through `runTaskAsynchronously` to avoid blocking the main thread:
+```java
+Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> plugin.getDatabaseManager().someMethod(...));
+```
+
+**Upsert pattern** — used for player profiles so it's safe to call on every join:
+```java
+collection.updateOne(filter, updates, new UpdateOptions().upsert(true));
+```
+
+**Chest/double chest ownership lookup**:
+```java
+// Single chest
+plugin.getChestTracker().getChestOwner(block.getLocation()) // → Optional<UUID>
+
+// Double chest — check both halves via DoubleChest.getLeftSide() / getRightSide()
+```
+
+**Clickable chat buttons** — used in `/requests`:
+```java
+Component.text("[Accept]").clickEvent(ClickEvent.runCommand("/request accept " + id))
+```
+
+---
+
+## Build Notes
+- Maven and Java are NOT installed in code-server — the deploy script spins up a temporary `maven:3.9-eclipse-temurin-21` Docker container to compile
+- The MongoDB driver is bundled into the JAR via the Maven Shade plugin
+- Docker binary lives at `~/.local/bin/docker` — always prefix deploy with `export PATH="$HOME/.local/bin:$PATH"`
+- The `target/` folder is git-ignored — build artifacts are never committed
