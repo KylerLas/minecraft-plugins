@@ -1,6 +1,5 @@
 package me.kaistudio;
 
-import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -21,7 +20,7 @@ public class GoldDropListener implements Listener {
     public void onPlayerDrop(PlayerDropItemEvent event) {
         Item item = event.getItemDrop();
         Material type = item.getItemStack().getType();
-        if (type == Material.GOLD_NUGGET || type == Material.GOLD_INGOT || type == Material.GOLD_BLOCK) {
+        if (GoldUtil.isTrackedGold(type)) {
             droppedGold.put(item.getUniqueId(), event.getPlayer().getUniqueId());
         }
     }

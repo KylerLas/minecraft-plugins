@@ -58,7 +58,8 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 - [x] Transaction tracking — sent/received via `/pay` and `/request`
 - [x] Gold leaderboard — sidebar scoreboard + `/goldscore`
 - [x] Block/chest/barrel/ender chest ownership — break protection + view-only for chests and barrels
-- [x] Gold drop ownership — dropped gold can only be picked up by the dropper
+- [x] Gold drop ownership — dropped gold (nugget/ingot/block/ore) can only be picked up by the dropper
+- [x] Gold storage restriction — gold items cannot be placed into shulker boxes, hoppers, droppers, or dispensers
 - [x] Barrel and ender chest gold tracking — barrel contents + player's ender chest scanned every 10s
 - [ ] Insurance tier — `/insurance` command (`minecraft_players`)
 

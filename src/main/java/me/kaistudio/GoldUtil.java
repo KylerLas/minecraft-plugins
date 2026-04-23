@@ -10,6 +10,14 @@ import java.util.HashMap;
 
 public class GoldUtil {
 
+    public static boolean isTrackedGold(Material type) {
+        return switch (type) {
+            case GOLD_NUGGET, GOLD_INGOT, GOLD_BLOCK,
+                 GOLD_ORE, DEEPSLATE_GOLD_ORE, NETHER_GOLD_ORE -> true;
+            default -> false;
+        };
+    }
+
     public static int countNuggets(Inventory inv) {
         int nuggets = 0;
         for (ItemStack item : inv.getStorageContents()) {

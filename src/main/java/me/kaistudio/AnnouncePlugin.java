@@ -55,6 +55,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
         Bukkit.getPluginManager().registerEvents(new GoldDropListener(), this);
+        Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);

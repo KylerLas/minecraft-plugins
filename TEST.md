@@ -40,8 +40,18 @@
 - [ ] Drop a gold ingot — another player cannot pick it up
 - [ ] Drop a gold nugget — another player cannot pick it up
 - [ ] Drop a gold block — another player cannot pick it up
+- [ ] Drop a gold ore — another player cannot pick it up
 - [ ] The player who dropped it can still pick it back up
 - [ ] Dropped gold despawns normally after 5 minutes
+
+## Gold Storage Restriction
+- [ ] Try to place gold ingot into a shulker box — blocked with red message
+- [ ] Try to place gold nugget into a hopper — blocked with red message
+- [ ] Try to place gold block into a dropper — blocked with red message
+- [ ] Try to place gold ore into a dispenser — blocked with red message
+- [ ] Shift-click gold from inventory into a shulker box — blocked
+- [ ] Drag gold into a shulker box — blocked
+- [ ] Non-gold items can still be placed into these containers normally
 
 ## Leaderboard
 - [ ] `/goldscore` — players sorted by gold, top 3 in gold/silver/bronze colours

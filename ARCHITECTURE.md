@@ -11,11 +11,12 @@ Quick navigation guide for Claude. Jump here first when adding a feature or fixi
 | `AnnouncePlugin.java` | Plugin entry point — registers all listeners and commands in `onEnable()` |
 | `DatabaseManager.java` | All Cosmos DB reads/writes — one method per operation |
 | `ChestTracker.java` | YAML-backed in-memory map of chest and gold block locations → owner UUID |
-| `GoldUtil.java` | Gold counting, formatting, add/remove from inventory |
+| `GoldUtil.java` | Gold counting, formatting, add/remove from inventory; `isTrackedGold(Material)` shared helper |
 | `GoldScanner.java` | Repeating task (every 10s) — tallies gold, updates DB + sidebar scoreboard |
 | `GoldScoreCommand.java` | `/goldscore` — reads scoreboard and prints leaderboard to chat |
-| `GoldDropListener.java` | Tracks dropped gold item entities — only the dropper can pick them back up |
-| `BlockListener.java` | Block place/break tracking; chest/gold block ownership protection; chest view-only enforcement |
+| `GoldDropListener.java` | Tracks dropped gold item entities (nugget/ingot/block/ore) — only the dropper can pick them up |
+| `GoldRestrictionListener.java` | Blocks gold items from being placed into shulker boxes, hoppers, droppers, dispensers |
+| `BlockListener.java` | Block place/break tracking; chest/barrel/ender chest ownership protection; view-only enforcement |
 | `PayCommand.java` | `/pay <player> <amount>` — physical gold transfer via inventory |
 | `RequestCommand.java` | `/request` and `/requests` — gold request flow with clickable chat buttons |
 | `RequestManager.java` | In-memory store of pending `Request` objects |
