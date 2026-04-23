@@ -1,0 +1,74 @@
+package me.kaistudio;
+
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import io.papermc.paper.command.brigadier.Commands;
+import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
+import io.papermc.paper.command.brigadier.argument.resolvers.selector.PlayerSelectorArgumentResolver;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.Player;
+
+import java.util.List;
+
+public class PayCommand {
+
+    private final AnnouncePlugin plugin;
+
+    public PayCommand(AnnouncePlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public com.mojang.brigadier.tree.LiteralCommandNode<CommandSourceStack> build() {
+        return Commands.literal("pay")
+            .then(Commands.argument("player", ArgumentTypes.player())
+                .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+                    .executes(ctx -> {
+                        if (!(ctx.getSource().getSender() instanceof Player sender)) {
+                            ctx.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
+                            return 0;
+                        }
+
+                        List<Player> targets = ctx.getArgument("player", PlayerSelectorArgumentResolver.class)
+                            .resolve(ctx.getSource());
+
+                        if (targets.isEmpty()) {
+                            sender.sendMessage(Component.text("Player not found.", NamedTextColor.RED));
+                            return 0;
+                        }
+
+                        Player target = targets.get(0);
+
+                        if (target.equals(sender)) {
+                            sender.sendMessage(Component.text("You cannot pay yourself.", NamedTextColor.RED));
+                            return 0;
+                        }
+
+                        int nuggets = IntegerArgumentType.getInteger(ctx, "amount") * 9;
+                        int senderNuggets = GoldUtil.countNuggets(sender.getInventory());
+
+                        if (senderNuggets < nuggets) {
+                            sender.sendMessage(Component.text(
+                                "Insufficient gold. You have " + GoldUtil.format(senderNuggets) + " in your inventory.",
+                                NamedTextColor.RED));
+                            return 0;
+                        }
+
+                        GoldUtil.removeGold(sender, nuggets);
+                        GoldUtil.addGold(target, nuggets);
+
+                        sender.sendMessage(Component.text("Paid " + GoldUtil.format(nuggets) + " to " + target.getName() + ".", NamedTextColor.GREEN));
+                        target.sendMessage(Component.text(sender.getName() + " paid you " + GoldUtil.format(nuggets) + ".", NamedTextColor.GREEN));
+
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                            plugin.getDatabaseManager().incrementTransactionsSent(sender.getUniqueId().toString());
+                            plugin.getDatabaseManager().incrementTransactionsReceived(target.getUniqueId().toString());
+                        });
+
+                        return 1;
+                    })
+                )
+            )
+            .build();
+    }
+}

@@ -15,10 +15,14 @@ import java.util.Random;
 public class AnnouncePlugin extends JavaPlugin {
 
     private DatabaseManager databaseManager;
+    private ChestTracker chestTracker;
+    private RequestManager requestManager;
+    private RequestCommand requestCommand;
 
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
-    }
+    public DatabaseManager getDatabaseManager() { return databaseManager; }
+    public ChestTracker getChestTracker() { return chestTracker; }
+    public RequestManager getRequestManager() { return requestManager; }
+    public RequestCommand getRequestCommand() { return requestCommand; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -35,6 +39,25 @@ public class AnnouncePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        String connectionString = getConfig().getString("cosmos-connection-string");
+        String database = getConfig().getString("cosmos-database");
+        String collection = getConfig().getString("cosmos-collection");
+        databaseManager = new DatabaseManager(connectionString, database, collection);
+        getLogger().info("Connected to Cosmos DB!");
+
+        chestTracker = new ChestTracker(this);
+        requestManager = new RequestManager();
+        requestCommand = new RequestCommand(this);
+
+        Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
+
+        // Gold scanner — runs every 10 seconds (200 ticks)
+        Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
+
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
                 Commands.literal("announce")
@@ -69,17 +92,12 @@ public class AnnouncePlugin extends JavaPlugin {
                     .build(),
                 "Broadcasts a random announcement to all players"
             );
-        });
-        saveDefaultConfig();
-        String connectionString = getConfig().getString("cosmos-connection-string");
-        String database = getConfig().getString("cosmos-database");
-        String collection = getConfig().getString("cosmos-collection");
-        databaseManager = new DatabaseManager(connectionString, database, collection);
-        getLogger().info("Connected to Cosmos DB!");
 
-        Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
+            event.registrar().register(new PayCommand(this).build(), "Pay another player gold from your inventory");
+            event.registrar().register(requestCommand.buildRequest(), "Request gold from another player");
+            event.registrar().register(requestCommand.buildRequests(), "View and manage your gold requests");
+        });
+
         getLogger().info("AnnouncePlugin enabled!");
     }
 }

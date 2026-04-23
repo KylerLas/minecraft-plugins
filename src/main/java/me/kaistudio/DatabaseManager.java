@@ -65,6 +65,27 @@ public class DatabaseManager {
         );
     }
 
+    public void updatePlayerGold(String playerUuid, int nuggets) {
+        players.updateOne(
+            Filters.eq("playerUuid", playerUuid),
+            Updates.set("gold", nuggets)
+        );
+    }
+
+    public void incrementTransactionsSent(String playerUuid) {
+        players.updateOne(
+            Filters.eq("playerUuid", playerUuid),
+            Updates.inc("transactionsSent", 1)
+        );
+    }
+
+    public void incrementTransactionsReceived(String playerUuid) {
+        players.updateOne(
+            Filters.eq("playerUuid", playerUuid),
+            Updates.inc("transactionsReceived", 1)
+        );
+    }
+
     public void close() {
         if (client != null) client.close();
     }

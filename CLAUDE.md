@@ -16,11 +16,19 @@ my-first-plugin/
 ├── CLAUDE.md                          ← this file
 └── src/main/
     ├── java/me/kaistudio/
-    │   ├── AnnouncePlugin.java        ← main plugin class, registers commands + listeners
-    │   ├── ChickenDeathListener.java  ← event listener for chicken kills → logs fine
-    │   ├── PlayerJoinListener.java    ← upserts player profile on join (creates if new)
+    │   ├── AnnouncePlugin.java        ← main plugin class, registers all commands + listeners
+    │   ├── DatabaseManager.java       ← Cosmos DB connection + all write operations
+    │   ├── ChickenDeathListener.java  ← chicken kill → issues fine + logs to DB
+    │   ├── PlayerJoinListener.java    ← upserts player profile; notifies of pending requests
     │   ├── PlayerDeathListener.java   ← increments death counter on player death
-    │   └── DatabaseManager.java      ← handles Cosmos DB connection + all writes
+    │   ├── BlockListener.java         ← tracks chest placements and gold block placements/breaks
+    │   ├── GoldScanner.java           ← repeating task: scans gold every 10s, updates DB
+    │   ├── GoldUtil.java              ← gold counting, formatting, add/remove from inventory
+    │   ├── PayCommand.java            ← /pay command logic
+    │   ├── RequestCommand.java        ← /request and /requests command logic
+    │   ├── RequestManager.java        ← in-memory store of pending gold requests
+    │   ├── Request.java               ← request data class
+    │   └── ChestTracker.java          ← YAML-backed tracker for player chests + gold blocks
     └── resources/
         ├── plugin.yml                 ← plugin metadata + permission declarations
         └── config.yml                 ← default config template (connection string goes here)
@@ -49,14 +57,18 @@ The deploy script:
 | Command | Permission | Description |
 |---------|-----------|-------------|
 | `/announce` | `kai.announce` (OP only) | Broadcasts a random message from the MESSAGES list as a screen title + chat message |
+| `/pay <player> <amount>` | anyone | Pay another player gold from your inventory |
+| `/request <player> <amount>` | anyone | Request gold from another player |
+| `/requests sent` | anyone | View your outgoing requests with [Cancel] buttons |
+| `/requests received` | anyone | View incoming requests with [Accept] / [Decline] buttons |
 
 ## Integration Progress
 
 - [x] Fine logging (`minecraft_fines` collection)
 - [x] Player profile creation on join (`minecraft_players`)
 - [x] Player death tracking (`minecraft_players`)
-- [ ] Gold balance (`minecraft_players`)
-- [ ] Transaction tracking — sent/received via `/pay` (`minecraft_players`)
+- [x] Gold balance — live scan every 10s, inventory + chests + placed blocks (`minecraft_players`)
+- [x] Transaction tracking — sent/received via `/pay` and `/request` (`minecraft_players`)
 - [ ] Insurance tier — `/insurance` command (`minecraft_players`)
 
 ---
