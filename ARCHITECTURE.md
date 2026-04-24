@@ -24,6 +24,8 @@ Quick navigation guide for Claude. Jump here first when adding a feature or fixi
 | `PlayerJoinListener.java` | Upserts player profile on join; notifies of pending requests |
 | `PlayerDeathListener.java` | Increments death counter on death |
 | `ChickenDeathListener.java` | Chicken kill → Court Officer spawns, fine note drops, fine logged to DB |
+| `DeathStateManager.java` | YAML-backed ghost state — dead player set, skull ArmorStand tracking, gold collection logic, tax rate |
+| `DeathStateListener.java` | All ghost state events — death, respawn, join, quit, move, block, interact, damage, drop |
 
 ---
 
@@ -46,6 +48,10 @@ Quick navigation guide for Claude. Jump here first when adding a feature or fixi
 | Change request lifecycle | `RequestCommand` + `RequestManager` |
 | Add a player profile field | `DatabaseManager.upsertPlayer()` + DB schema in `CLAUDE.md` |
 | Change fine behaviour | `ChickenDeathListener` + `DatabaseManager.logFine()` |
+| Change death penalty rate | `DeathStateManager.getDeathTaxRate()` (returns 0.50; will read `insuranceTier` when that lands) |
+| Change ghost state restrictions | `DeathStateListener` event handlers |
+| Change skull position | `DeathStateManager.skullLocation()` — currently +2.1 Y above player feet |
+| Change gold removal order on death | `DeathStateManager.collectGold()` |
 
 ---
 

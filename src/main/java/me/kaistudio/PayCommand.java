@@ -21,6 +21,38 @@ public class PayCommand {
 
     public com.mojang.brigadier.tree.LiteralCommandNode<CommandSourceStack> build() {
         return Commands.literal("pay")
+            .then(Commands.literal("death")
+                .executes(ctx -> {
+                    if (!(ctx.getSource().getSender() instanceof Player sender)) {
+                        ctx.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
+                        return 0;
+                    }
+                    if (!plugin.getDeathStateManager().isDead(sender.getUniqueId())) {
+                        sender.sendMessage(Component.text("You are not in ghost state.", NamedTextColor.RED));
+                        return 0;
+                    }
+
+                    int total = plugin.getDeathStateManager().getTotalNuggets(sender);
+                    int debt = (int) Math.floor(total * plugin.getDeathStateManager().getDeathTaxRate(sender.getUniqueId()));
+
+                    if (debt == 0) {
+                        plugin.getDeathStateManager().exitDeathState(sender);
+                        sender.sendMessage(Component.text("You have been revived. No gold to pay.", NamedTextColor.GREEN));
+                        return 1;
+                    }
+
+                    int collected = plugin.getDeathStateManager().collectGold(sender, debt);
+                    if (collected > debt) {
+                        GoldUtil.addGold(sender, collected - debt);
+                    }
+
+                    plugin.getDeathStateManager().exitDeathState(sender);
+                    sender.sendMessage(Component.text(
+                        "You have been revived. " + GoldUtil.format(debt) + " was taken as a death penalty.",
+                        NamedTextColor.GREEN));
+                    return 1;
+                })
+            )
             .then(Commands.argument("player", ArgumentTypes.player())
                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
                     .executes(ctx -> {

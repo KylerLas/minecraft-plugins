@@ -109,6 +109,16 @@ public class ChestTracker {
         return count;
     }
 
+    public List<Location> getGoldBlockLocations(UUID playerUUID) {
+        List<Location> locs = new ArrayList<>();
+        for (Map.Entry<String, String> e : goldBlocks.entrySet()) {
+            if (e.getValue().equals(playerUUID.toString())) {
+                parseKey(e.getKey()).ifPresent(locs::add);
+            }
+        }
+        return locs;
+    }
+
     public Optional<UUID> getChestOwner(Location loc) {
         String uuid = chests.get(key(loc));
         return uuid == null ? Optional.empty() : Optional.of(UUID.fromString(uuid));

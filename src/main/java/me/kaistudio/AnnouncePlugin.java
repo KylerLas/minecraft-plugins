@@ -18,11 +18,13 @@ public class AnnouncePlugin extends JavaPlugin {
     private ChestTracker chestTracker;
     private RequestManager requestManager;
     private RequestCommand requestCommand;
+    private DeathStateManager deathStateManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
     public RequestManager getRequestManager() { return requestManager; }
     public RequestCommand getRequestCommand() { return requestCommand; }
+    public DeathStateManager getDeathStateManager() { return deathStateManager; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -49,6 +51,7 @@ public class AnnouncePlugin extends JavaPlugin {
         chestTracker = new ChestTracker(this);
         requestManager = new RequestManager();
         requestCommand = new RequestCommand(this);
+        deathStateManager = new DeathStateManager(this);
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -56,6 +59,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
         Bukkit.getPluginManager().registerEvents(new GoldDropListener(), this);
         Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
+        Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);

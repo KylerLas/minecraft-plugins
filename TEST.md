@@ -57,6 +57,36 @@
 - [ ] `/goldscore` — players sorted by gold, top 3 in gold/silver/bronze colours
 - [ ] Sidebar scoreboard visible on right side of screen, updates every 10s
 
+## Ghost Death State
+
+### Entering ghost mode
+- [ ] Die normally — after clicking Respawn, floating player skull appears above your head
+- [ ] Skull follows you as you move around the world
+- [ ] Other players can see your skull floating above you
+
+### World restrictions while dead
+- [ ] Try to break a block — blocked (no block break)
+- [ ] Try to place a block — blocked
+- [ ] Try to open a chest — blocked
+- [ ] Try to press a button / lever — blocked
+- [ ] Try to attack a mob — blocked
+- [ ] Try to attack another player — blocked
+- [ ] Try to drop an item — blocked
+- [ ] Fall into lava or off a cliff — no damage taken
+
+### Persistence
+- [ ] Disconnect while in ghost state — log back in, skull reappears and reminder message shown
+- [ ] Server restart while a player is in ghost state — skull reappears on next login, no orphan ArmorStands left in the world
+
+### `/pay death` — revival
+- [ ] Run `/pay death` while NOT dead — error message, nothing happens
+- [ ] Die with 0 gold across all sources — `/pay death` revives for free with message "No gold to pay"
+- [ ] Die with gold only in inventory — 50% taken from inventory, skull removed, movement and interaction restored
+- [ ] Die with gold only in chests/barrels — 50% pulled from chest inventories, skull removed
+- [ ] Die with placed gold blocks — blocks are broken silently (not dropped), 50% taken; if blocks overshoot debt, excess refunded to inventory
+- [ ] Die with 20 gold (2 blocks + 2 ingots) — both blocks broken, 8 gold refunded to inventory, 2 ingots untouched
+- [ ] Die with gold spread across blocks + chests + inventory — blocks drained first, then chests, then inventory; stops as soon as debt covered
+
 ## Misc
 - [ ] Kill a chicken — Court Officer spawns, fine note drops, fine logged to `minecraft_fines`
 - [ ] Player join — profile upserted in `minecraft_players`, pending requests announced in chat

@@ -52,6 +52,7 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 | `/requests sent`             | anyone                   | View outgoing requests with [Cancel] buttons             |
 | `/requests received`         | anyone                   | View incoming requests with [Accept] / [Decline] buttons |
 | `/goldscore`                 | anyone                   | Show full sorted gold leaderboard in chat                |
+| `/pay death`                 | anyone (dead only)       | Pay the death penalty to exit ghost state                |
 
 ---
 
@@ -67,7 +68,36 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 - [x] Gold drop ownership — dropped gold (nugget/ingot/block/ore) can only be picked up by the dropper
 - [x] Gold storage restriction — gold items cannot be placed into shulker boxes, hoppers, droppers, or dispensers
 - [x] Barrel and ender chest gold tracking — barrel contents + player's ender chest scanned every 10s
-- [ ] Insurance tier — `/insurance` command (`minecraft_players`)
+- [x] Ghost death state — on death, player enters ghost mode with floating skull; `/pay death` charges 50% of total gold to revive
+- [ ] Insurance tier — `/insurance` command + tier-based death penalty rate (`minecraft_players`)
+
+---
+
+## Ghost Death State
+
+When a player dies they enter ghost mode after respawning:
+
+- An invisible ArmorStand with their player skull floats above their head, following them via `PlayerMoveEvent`
+- They can roam freely but cannot break/place blocks, interact with the world, attack, drop items, or receive damage
+- Other players can see the skull but cannot attack or interact with the ghost
+- Ghost state persists through disconnects — skull respawns on next login
+- Orphan skull ArmorStands from previous server runs are cleaned up on plugin enable via a `PersistentDataContainer` tag (`myfirstplugin:death_skull`)
+
+### Revival — `/pay death`
+
+Charges 50% of the player's total gold (same pool as GoldScanner: inventory + chests + barrels + ender chest + placed gold blocks).
+
+**Removal order (stop early once debt is covered):**
+1. Placed gold blocks — broken silently one at a time; overage is refunded to inventory
+2. Owned chests and barrels
+3. Ender chest
+4. Inventory
+
+If total gold is 0, revival is free.
+
+### Insurance hook
+
+`DeathStateManager.getDeathTaxRate(UUID)` returns `0.50` by default. When insurance tiers land, this method will read `insuranceTier` from the player document and map it to the appropriate rate — no other structural changes needed.
 
 ---
 
