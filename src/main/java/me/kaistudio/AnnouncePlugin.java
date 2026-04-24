@@ -6,6 +6,9 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
@@ -19,12 +22,14 @@ public class AnnouncePlugin extends JavaPlugin {
     private RequestManager requestManager;
     private RequestCommand requestCommand;
     private DeathStateManager deathStateManager;
+    private MarketManager marketManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
     public RequestManager getRequestManager() { return requestManager; }
     public RequestCommand getRequestCommand() { return requestCommand; }
     public DeathStateManager getDeathStateManager() { return deathStateManager; }
+    public MarketManager getMarketManager() { return marketManager; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -52,6 +57,7 @@ public class AnnouncePlugin extends JavaPlugin {
         requestManager = new RequestManager();
         requestCommand = new RequestCommand(this);
         deathStateManager = new DeathStateManager(this);
+        marketManager = new MarketManager(this);
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -60,9 +66,44 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new GoldDropListener(), this);
         Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
         Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new MarketTellerListener(this), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
+
+        // Market price recovery — nudges depressed prices up by 1% every 10 minutes (12000 ticks)
+        Bukkit.getScheduler().runTaskTimer(this, () -> marketManager.recoverPrices(), 12000L, 12000L);
+
+        // Action bar — purgatory reminder for ghosts; chest ownership for everyone else
+        Bukkit.getScheduler().runTaskTimer(this, () -> {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (deathStateManager.isDead(player.getUniqueId())) {
+                    player.sendActionBar(Component.text("☠ You are in Purgatory — type /pay death to revive", NamedTextColor.RED));
+                    continue;
+                }
+
+                Block target = player.getTargetBlockExact(5);
+                if (target == null) continue;
+                Material type = target.getType();
+                if (type != Material.CHEST && type != Material.TRAPPED_CHEST
+                        && type != Material.BARREL && type != Material.ENDER_CHEST) continue;
+
+                chestTracker.getChestOwner(target.getLocation()).ifPresent(ownerUuid -> {
+                    String label = switch (type) {
+                        case BARREL -> "Barrel";
+                        case ENDER_CHEST -> "Ender Chest";
+                        default -> "Chest";
+                    };
+                    if (ownerUuid.equals(player.getUniqueId())) {
+                        player.sendActionBar(Component.text("Your " + label, NamedTextColor.GREEN));
+                    } else {
+                        String ownerName = Bukkit.getOfflinePlayer(ownerUuid).getName();
+                        player.sendActionBar(Component.text(
+                            (ownerName != null ? ownerName : "Someone") + "'s " + label, NamedTextColor.RED));
+                    }
+                });
+            }
+        }, 20L, 20L);
 
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
             event.registrar().register(
@@ -103,6 +144,25 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(requestCommand.buildRequest(), "Request gold from another player");
             event.registrar().register(requestCommand.buildRequests(), "View and manage your gold requests");
             event.registrar().register(new GoldScoreCommand().build(), "View the gold leaderboard");
+            event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
+            event.registrar().register(
+                Commands.literal("spawnteller")
+                    .executes(ctx -> {
+                        if (!(ctx.getSource().getSender() instanceof Player player)) {
+                            ctx.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
+                            return 0;
+                        }
+                        if (!player.isOp()) {
+                            player.sendMessage(Component.text("You don't have permission to use this command.", NamedTextColor.RED));
+                            return 0;
+                        }
+                        marketManager.spawnTeller(player);
+                        player.sendMessage(Component.text("Bank Teller spawned!", NamedTextColor.GREEN));
+                        return 1;
+                    })
+                    .build(),
+                "Spawn a Bank Teller NPC at your location (OP only)"
+            );
         });
 
         getLogger().info("AnnouncePlugin enabled!");
