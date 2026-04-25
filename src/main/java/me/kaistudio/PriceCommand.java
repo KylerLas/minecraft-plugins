@@ -44,17 +44,19 @@ public class PriceCommand {
 
                 MarketManager.PriceEntry base = market.getBaseEntry(mat);
                 double multiplier = market.getMultiplier(mat);
-                int pctChange = (int) Math.round((multiplier - 1.0) * 100); // 0 or negative
+                int pct = (int) Math.round(multiplier * 100); // absolute: 100=normal, 75=depressed, 200=purge
                 int currentPayout = market.calculatePayout(mat, base.qty());
 
-                String pctStr = pctChange + "%"; // e.g. "0%" or "-25%"
-                NamedTextColor pctColor = pctChange == 0 ? NamedTextColor.GRAY
-                    : pctChange >= -20 ? NamedTextColor.YELLOW : NamedTextColor.RED;
+                String pctStr = pct + "%";
+                NamedTextColor pctColor = pct > 100 ? NamedTextColor.GREEN
+                    : pct == 100 ? NamedTextColor.GRAY
+                    : pct >= 80  ? NamedTextColor.YELLOW : NamedTextColor.RED;
 
                 player.sendMessage(
                     Component.text(base.qty() + "x " + MarketManager.formatMaterial(mat) + " for ", NamedTextColor.GOLD)
                         .append(Component.text(MarketManager.formatNuggets(currentPayout), NamedTextColor.WHITE))
                         .append(Component.text("  " + pctStr, pctColor))
+                        .append(pct > 100 ? Component.text(" [PURGE]", NamedTextColor.RED) : Component.empty())
                 );
                 return 1;
             })

@@ -81,8 +81,9 @@ public class PurgeCommand {
                         }
                         int minutes = IntegerArgumentType.getInteger(ctx, "minutes");
                         pm.addDelay(minutes);
-                        sender.sendMessage(Component.text(
-                            "Added " + minutes + "m. Next purge in " + formatTime(pm.getSecondsToNextPurge()) + ".",
+                        org.bukkit.Bukkit.broadcast(Component.text(
+                            "Purge delayed by " + minutes + " minute" + (minutes == 1 ? "" : "s")
+                            + ". Next purge in " + formatTime(pm.getSecondsToNextPurge()) + ".",
                             NamedTextColor.YELLOW));
                         return 1;
                     })))

@@ -115,12 +115,13 @@ public class AnnouncePlugin extends JavaPlugin {
                                 held.getAmount() + "x " + MarketManager.formatMaterial(held.getType())
                                 + " — not worth 1 nugget", NamedTextColor.RED));
                         } else {
-                            int pct = (int)(marketManager.getMultiplier(held.getType()) * 100) - 100;
+                            int pct = (int)(marketManager.getMultiplier(held.getType()) * 100);
                             Component preview = Component.text(
                                 "Sell " + held.getAmount() + "x " + MarketManager.formatMaterial(held.getType())
                                 + " → " + MarketManager.formatNuggets(payout), NamedTextColor.YELLOW);
-                            if (pct != 0) {
-                                preview = preview.append(Component.text(" (" + pct + "%)", NamedTextColor.GRAY));
+                            if (pct != 100) {
+                                NamedTextColor pctColor = pct > 100 ? NamedTextColor.GREEN : NamedTextColor.GRAY;
+                                preview = preview.append(Component.text(" (" + pct + "%)", pctColor));
                             }
                             player.sendActionBar(preview);
                         }

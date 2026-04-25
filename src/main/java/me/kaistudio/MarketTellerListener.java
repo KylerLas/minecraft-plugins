@@ -50,7 +50,7 @@ public class MarketTellerListener implements Listener {
         market.processSale(player, hand);
 
         int pct = (int)(market.getMultiplier(hand.getType()) * 100);
-        String marketNote = pct < 100 ? " §7(market: " + pct + "%)" : "";
+        String marketNote = pct != 100 ? " §7(market: " + pct + "%)" : "";
 
         player.sendMessage(Component.text(
             "Sold " + hand.getAmount() + "x " + MarketManager.formatMaterial(hand.getType())
