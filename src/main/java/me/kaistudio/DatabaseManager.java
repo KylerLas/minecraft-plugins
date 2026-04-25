@@ -108,6 +108,27 @@ public class DatabaseManager {
         players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("bossesKilled", 1));
     }
 
+    public void incrementGuardianKills(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.combine(
+            Updates.inc("bossesKilled", 1),
+            Updates.inc("guardianKills", 1)
+        ));
+    }
+
+    public void incrementWitherKills(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.combine(
+            Updates.inc("bossesKilled", 1),
+            Updates.inc("witherKills", 1)
+        ));
+    }
+
+    public void incrementDragonKills(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.combine(
+            Updates.inc("bossesKilled", 1),
+            Updates.inc("dragonKills", 1)
+        ));
+    }
+
     public void addGoldReceived(String playerUuid, int goldAmount) {
         players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("goldReceived", goldAmount));
     }
@@ -125,6 +146,9 @@ public class DatabaseManager {
                 Updates.set("goldReceived", 0),
                 Updates.set("goldSpent", 0),
                 Updates.set("bossesKilled", 0),
+                Updates.set("guardianKills", 0),
+                Updates.set("witherKills", 0),
+                Updates.set("dragonKills", 0),
                 Updates.set("transactionsSent", 0),
                 Updates.set("transactionsReceived", 0)
             ));
