@@ -1,11 +1,13 @@
 package me.kaistudio;
 
+import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
@@ -17,12 +19,42 @@ import java.util.stream.Collectors;
 
 public class GoldScoreCommand {
 
-    public com.mojang.brigadier.tree.LiteralCommandNode<CommandSourceStack> build() {
+    private final AnnouncePlugin plugin;
+
+    public GoldScoreCommand(AnnouncePlugin plugin) {
+        this.plugin = plugin;
+    }
+
+    public LiteralCommandNode<CommandSourceStack> build() {
         return Commands.literal("goldscore")
             .executes(ctx -> {
                 showLeaderboard(ctx.getSource().getSender());
                 return 1;
             })
+            .then(Commands.literal("off")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(Component.text("Only players can use this.", NamedTextColor.RED));
+                        return 0;
+                    }
+                    plugin.setLeaderboardHidden(player.getUniqueId(), true);
+                    player.setScoreboard(plugin.getBlankScoreboard());
+                    player.sendMessage(Component.text("Gold leaderboard hidden. Use /goldscore on to show it again.", NamedTextColor.YELLOW));
+                    return 1;
+                }))
+            .then(Commands.literal("on")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!(sender instanceof Player player)) {
+                        sender.sendMessage(Component.text("Only players can use this.", NamedTextColor.RED));
+                        return 0;
+                    }
+                    plugin.setLeaderboardHidden(player.getUniqueId(), false);
+                    player.setScoreboard(Bukkit.getScoreboardManager().getMainScoreboard());
+                    player.sendMessage(Component.text("Gold leaderboard visible.", NamedTextColor.GREEN));
+                    return 1;
+                }))
             .build();
     }
 

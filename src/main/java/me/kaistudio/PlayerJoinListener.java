@@ -25,6 +25,10 @@ public class PlayerJoinListener implements Listener {
             player.getUniqueId().toString()
         );
 
+        if (plugin.isLeaderboardHidden(player.getUniqueId())) {
+            player.setScoreboard(plugin.getBlankScoreboard());
+        }
+
         List<Request> pending = plugin.getRequestManager().getReceived(player.getUniqueId());
         if (!pending.isEmpty()) {
             player.sendMessage(Component.text(

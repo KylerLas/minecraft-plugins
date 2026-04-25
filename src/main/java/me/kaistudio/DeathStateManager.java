@@ -41,14 +41,27 @@ public class DeathStateManager {
 
     // Remove any skull armor stands left over from a previous server run
     private void cleanupOrphanSkulls() {
+        cleanupSkulls();
+    }
+
+    // Remove all skull ArmorStands from all worlds, then re-spawn for any currently online dead players
+    public int cleanupSkulls() {
+        int count = 0;
         for (World world : org.bukkit.Bukkit.getWorlds()) {
             for (Entity entity : world.getEntities()) {
                 if (entity instanceof ArmorStand as
                         && as.getPersistentDataContainer().has(SKULL_TAG, PersistentDataType.BYTE)) {
                     entity.remove();
+                    count++;
                 }
             }
         }
+        skulls.clear();
+        for (UUID uuid : deadPlayers) {
+            org.bukkit.entity.Player player = org.bukkit.Bukkit.getPlayer(uuid);
+            if (player != null && player.isOnline()) spawnSkull(player);
+        }
+        return count;
     }
 
     private void load() {

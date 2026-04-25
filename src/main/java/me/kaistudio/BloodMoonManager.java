@@ -257,7 +257,9 @@ public class BloodMoonManager {
 
         Scoreboard main = Bukkit.getScoreboardManager().getMainScoreboard();
         for (Player p : Bukkit.getOnlinePlayers()) {
-            p.setScoreboard(main);
+            p.setScoreboard(plugin.isLeaderboardHidden(p.getUniqueId())
+                ? plugin.getBlankScoreboard()
+                : main);
         }
         killBoard = null;
         killObjective = null;

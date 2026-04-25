@@ -12,9 +12,14 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import org.bukkit.scoreboard.Scoreboard;
+
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
+import java.util.UUID;
 
 public class AnnouncePlugin extends JavaPlugin {
 
@@ -29,6 +34,15 @@ public class AnnouncePlugin extends JavaPlugin {
     private PurgeManager purgeManager;
     private BloodMoonManager bloodMoonManager;
     private PollManager pollManager;
+
+    private final Set<UUID> leaderboardHidden = new HashSet<>();
+    private Scoreboard blankScoreboard;
+
+    public boolean isLeaderboardHidden(UUID uuid) { return leaderboardHidden.contains(uuid); }
+    public void setLeaderboardHidden(UUID uuid, boolean hidden) {
+        if (hidden) leaderboardHidden.add(uuid); else leaderboardHidden.remove(uuid);
+    }
+    public Scoreboard getBlankScoreboard() { return blankScoreboard; }
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
@@ -69,6 +83,7 @@ public class AnnouncePlugin extends JavaPlugin {
         requestCommand = new RequestCommand(this);
         deathStateManager = new DeathStateManager(this);
         insuranceManager = new InsuranceManager(this);
+        blankScoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
         marketManager = new MarketManager(this);
         purgeManager = new PurgeManager(this);
         bloodMoonManager = new BloodMoonManager(this);
@@ -207,7 +222,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new PayCommand(this).build(), "Pay another player gold from your inventory");
             event.registrar().register(requestCommand.buildRequest(), "Request gold from another player");
             event.registrar().register(requestCommand.buildRequests(), "View and manage your gold requests");
-            event.registrar().register(new GoldScoreCommand().build(), "View the gold leaderboard");
+            event.registrar().register(new GoldScoreCommand(this).build(), "View the gold leaderboard");
             event.registrar().register(new InsuranceCommand(this).build(), "Manage your Insurance Inc policy");
             event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
@@ -215,6 +230,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");
             event.registrar().register(new BloodMoonCommand(this).build(), "Manage the Blood Moon event");
             event.registrar().register(new PollCommand(this).build(), "Start a server poll");
+            event.registrar().register(new HeadCommand(this).build(), "Manage purgatory skull cleanup");
             event.registrar().register(
                 Commands.literal("spawnteller")
                     .executes(ctx -> {
