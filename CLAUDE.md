@@ -7,6 +7,14 @@ See [TEST.md](TEST.md) for the manual QA checklist.
 
 ---
 
+## Working Agreement
+
+1. **Always discuss and plan before implementing.** Present the approach, wait for explicit approval before writing any code.
+2. **Always `git pull` before making changes.** Never write or commit code without pulling the latest first.
+3. **Only push when Kai gives the go-ahead.** Don't push autonomously after implementing.
+
+---
+
 ## Server Details
 
 - **Server**: Paper 1.21.11, Java 25

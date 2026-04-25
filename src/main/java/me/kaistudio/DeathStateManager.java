@@ -146,7 +146,15 @@ public class DeathStateManager {
         }
 
         nuggets += GoldUtil.countNuggets(player.getEnderChest());
-        nuggets += tracker.getGoldBlockCount(player.getUniqueId()) * 81;
+
+        // Verify each tracked gold block still exists — prune stale entries
+        for (Location loc : tracker.getGoldBlockLocations(player.getUniqueId())) {
+            if (loc.getBlock().getType() == Material.GOLD_BLOCK) {
+                nuggets += 81;
+            } else {
+                tracker.untrackGoldBlock(loc);
+            }
+        }
 
         return nuggets;
     }
@@ -170,6 +178,8 @@ public class DeathStateManager {
                 block.setType(Material.AIR);
                 tracker.untrackGoldBlock(loc);
                 collected += 81;
+            } else {
+                tracker.untrackGoldBlock(loc); // stale entry — block no longer exists
             }
         }
 
