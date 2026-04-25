@@ -82,13 +82,16 @@ public class InsuranceManager {
     }
 
     private void chargePlayer(Player player, PlayerInsuranceState state) {
-        int invNuggets = GoldUtil.countNuggets(player.getInventory());
         double rate = dailyCostRates.getOrDefault(state.tier, 0.0);
         int totalNuggets = plugin.getDeathStateManager().getTotalNuggets(player);
         int feeNuggets = (int) Math.floor(totalNuggets * rate);
-        int actualCharge = Math.min(feeNuggets, invNuggets);
 
-        if (actualCharge > 0) GoldUtil.removeGold(player, actualCharge);
+        int actualCharge = 0;
+        if (feeNuggets > 0) {
+            int collected = plugin.getDeathStateManager().collectGold(player, feeNuggets);
+            if (collected > feeNuggets) GoldUtil.addGold(player, collected - feeNuggets);
+            actualCharge = Math.min(collected, feeNuggets);
+        }
 
         state.nextPaymentTime = new Date(System.currentTimeMillis() + BILLING_INTERVAL_MS);
 
@@ -121,12 +124,16 @@ public class InsuranceManager {
         state.pendingTier = null;
 
         // Charge immediately at new tier's rate for this cycle
-        int invNuggets = GoldUtil.countNuggets(player.getInventory());
         double rate = dailyCostRates.getOrDefault(state.tier, 0.0);
         int totalNuggets = plugin.getDeathStateManager().getTotalNuggets(player);
         int feeNuggets = (int) Math.floor(totalNuggets * rate);
-        int actualCharge = Math.min(feeNuggets, invNuggets);
-        if (actualCharge > 0) GoldUtil.removeGold(player, actualCharge);
+
+        int actualCharge = 0;
+        if (feeNuggets > 0) {
+            int collected = plugin.getDeathStateManager().collectGold(player, feeNuggets);
+            if (collected > feeNuggets) GoldUtil.addGold(player, collected - feeNuggets);
+            actualCharge = Math.min(collected, feeNuggets);
+        }
 
         player.sendMessage(Component.text(
             "India Insures You: Plan amended from " + cap(oldTier) + " to " + cap(state.tier) + ". First invoice collected: " + GoldUtil.format(actualCharge) + ".",
