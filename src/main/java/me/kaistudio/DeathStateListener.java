@@ -9,7 +9,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.entity.PlayerDeathEvent;
+
+import java.util.ArrayList;
+import java.util.List;
 import org.bukkit.event.player.*;
 
 public class DeathStateListener implements Listener {
@@ -22,9 +27,24 @@ public class DeathStateListener implements Listener {
 
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
-        // Ignore if already in ghost state (e.g. void kill while in ghost mode somehow)
         if (plugin.getDeathStateManager().isDead(event.getPlayer().getUniqueId())) return;
         plugin.getDeathStateManager().markPendingDeath(event.getPlayer().getUniqueId());
+
+        // Intercept gold from the death drops, spawn them manually so they're tracked
+        // (death drops fire through PlayerDeathEvent, not PlayerDropItemEvent)
+        Player player = event.getPlayer();
+        List<ItemStack> goldDrops = new ArrayList<>();
+        event.getDrops().removeIf(stack -> {
+            if (stack != null && GoldUtil.isTrackedGold(stack.getType())) {
+                goldDrops.add(stack);
+                return true;
+            }
+            return false;
+        });
+        for (ItemStack gold : goldDrops) {
+            Item item = player.getWorld().dropItemNaturally(player.getLocation(), gold);
+            plugin.getGoldDropListener().track(item, player.getUniqueId());
+        }
     }
 
     @EventHandler

@@ -23,6 +23,7 @@ public class AnnouncePlugin extends JavaPlugin {
     private RequestCommand requestCommand;
     private DeathStateManager deathStateManager;
     private InsuranceManager insuranceManager;
+    private GoldDropListener goldDropListener;
     private MarketManager marketManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
@@ -31,6 +32,7 @@ public class AnnouncePlugin extends JavaPlugin {
     public RequestCommand getRequestCommand() { return requestCommand; }
     public DeathStateManager getDeathStateManager() { return deathStateManager; }
     public InsuranceManager getInsuranceManager() { return insuranceManager; }
+    public GoldDropListener getGoldDropListener() { return goldDropListener; }
     public MarketManager getMarketManager() { return marketManager; }
 
     private static final List<String> MESSAGES = List.of(
@@ -66,7 +68,8 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
-        Bukkit.getPluginManager().registerEvents(new GoldDropListener(), this);
+        goldDropListener = new GoldDropListener();
+        Bukkit.getPluginManager().registerEvents(goldDropListener, this);
         Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
         Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InsuranceListener(this), this);

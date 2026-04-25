@@ -133,6 +133,7 @@ public class DeathStateManager {
 
     public int getTotalNuggets(Player player) {
         int nuggets = GoldUtil.countNuggets(player.getInventory());
+        nuggets += plugin.getGoldDropListener().countNuggets(player.getUniqueId());
         ChestTracker tracker = plugin.getChestTracker();
 
         Set<Inventory> counted = new HashSet<>();
@@ -170,7 +171,12 @@ public class DeathStateManager {
         int collected = 0;
         ChestTracker tracker = plugin.getChestTracker();
 
-        // Phase 1: placed gold blocks — break one at a time, stop once debt is covered
+        // Phase 1: floor items (death drops) — stop once debt is covered
+        if (collected < debtNuggets) {
+            collected += plugin.getGoldDropListener().collect(player.getUniqueId(), debtNuggets - collected);
+        }
+
+        // Phase 2: placed gold blocks — break one at a time, stop once debt is covered
         for (Location loc : tracker.getGoldBlockLocations(player.getUniqueId())) {
             if (collected >= debtNuggets) break;
             Block block = loc.getBlock();
