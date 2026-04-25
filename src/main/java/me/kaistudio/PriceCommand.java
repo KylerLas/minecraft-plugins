@@ -42,18 +42,29 @@ public class PriceCommand {
                     return 1;
                 }
 
-                int base    = market.getBasePrice(mat);
-                int current = market.getEffectivePricePerItem(mat);
-                int pct     = (int)(market.getMultiplier(mat) * 100);
+                MarketManager.PriceEntry base = market.getBaseEntry(mat);
+                double multiplier = market.getMultiplier(mat);
+                int pct = (int)(multiplier * 100);
+
+                // Current payout for the base quantity at current market rate
+                int currentPayout = market.calculatePayout(mat, base.qty());
 
                 NamedTextColor priceColor = pct >= 100 ? NamedTextColor.GREEN
                     : pct <= 30 ? NamedTextColor.RED : NamedTextColor.YELLOW;
 
-                player.sendMessage(
-                    Component.text(MarketManager.formatMaterial(mat) + " — ", NamedTextColor.GOLD)
-                        .append(Component.text(current + " nugget" + (current != 1 ? "s" : "") + " each", priceColor))
-                        .append(Component.text("  (base: " + base + " | market: " + pct + "%)", NamedTextColor.GRAY))
-                );
+                String baseStr    = MarketManager.formatNuggets(base.nuggets());
+                String currentStr = MarketManager.formatNuggets(currentPayout);
+                String qtyLabel   = base.qty() + "x " + MarketManager.formatMaterial(mat);
+
+                Component msg = Component.text(qtyLabel + " — ", NamedTextColor.GOLD)
+                    .append(Component.text(currentStr, priceColor));
+
+                if (pct < 100) {
+                    msg = msg.append(Component.text(
+                        "  (base: " + baseStr + " | market: " + pct + "%)", NamedTextColor.GRAY));
+                }
+
+                player.sendMessage(msg);
                 return 1;
             })
             .build();

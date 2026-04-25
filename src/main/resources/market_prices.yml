@@ -1,0 +1,290 @@
+# Bank Market Prices
+# qty  = how many items the player sells in one transaction
+# nuggets = how many gold nuggets that pays out (9 nuggets = 1 ingot, 81 = 1 block)
+# Only items listed here can be sold at the bank teller.
+
+prices:
+
+  # ── Terrain ──────────────────────────────────────────────────────────────
+  STONE:            { qty: 64, nuggets: 3 }
+  GRASS_BLOCK:      { qty: 32, nuggets: 3 }
+  DIRT:             { qty: 64, nuggets: 2 }
+  SAND:             { qty: 64, nuggets: 1 }
+  GRAVEL:           { qty: 64, nuggets: 4 }
+  SANDSTONE:        { qty: 64, nuggets: 3 }
+  STONE_BRICKS:     { qty: 64, nuggets: 3 }
+  OBSIDIAN:         { qty: 5,  nuggets: 9 }
+  END_STONE:        { qty: 20, nuggets: 9 }
+  SPONGE:           { qty: 1,  nuggets: 18 }
+  PRISMARINE:       { qty: 10, nuggets: 9 }
+
+  # ── Wood (all types same price) ───────────────────────────────────────────
+  OAK_LOG:          { qty: 32, nuggets: 6 }
+  SPRUCE_LOG:       { qty: 32, nuggets: 6 }
+  BIRCH_LOG:        { qty: 32, nuggets: 6 }
+  JUNGLE_LOG:       { qty: 32, nuggets: 6 }
+  ACACIA_LOG:       { qty: 32, nuggets: 6 }
+  DARK_OAK_LOG:     { qty: 32, nuggets: 6 }
+  MANGROVE_LOG:     { qty: 32, nuggets: 6 }
+  CHERRY_LOG:       { qty: 32, nuggets: 6 }
+  BAMBOO_BLOCK:     { qty: 32, nuggets: 6 }
+  CRIMSON_STEM:     { qty: 32, nuggets: 6 }
+  WARPED_STEM:      { qty: 32, nuggets: 6 }
+
+  OAK_PLANKS:       { qty: 64, nuggets: 2 }
+  SPRUCE_PLANKS:    { qty: 64, nuggets: 2 }
+  BIRCH_PLANKS:     { qty: 64, nuggets: 2 }
+  JUNGLE_PLANKS:    { qty: 64, nuggets: 2 }
+  ACACIA_PLANKS:    { qty: 64, nuggets: 2 }
+  DARK_OAK_PLANKS:  { qty: 64, nuggets: 2 }
+  MANGROVE_PLANKS:  { qty: 64, nuggets: 2 }
+  CHERRY_PLANKS:    { qty: 64, nuggets: 2 }
+  BAMBOO_PLANKS:    { qty: 64, nuggets: 2 }
+  CRIMSON_PLANKS:   { qty: 64, nuggets: 2 }
+  WARPED_PLANKS:    { qty: 64, nuggets: 2 }
+
+  # ── Glass (all colors same price) ────────────────────────────────────────
+  GLASS:                   { qty: 64, nuggets: 3 }
+  WHITE_STAINED_GLASS:     { qty: 64, nuggets: 3 }
+  ORANGE_STAINED_GLASS:    { qty: 64, nuggets: 3 }
+  MAGENTA_STAINED_GLASS:   { qty: 64, nuggets: 3 }
+  LIGHT_BLUE_STAINED_GLASS:{ qty: 64, nuggets: 3 }
+  YELLOW_STAINED_GLASS:    { qty: 64, nuggets: 3 }
+  LIME_STAINED_GLASS:      { qty: 64, nuggets: 3 }
+  PINK_STAINED_GLASS:      { qty: 64, nuggets: 3 }
+  GRAY_STAINED_GLASS:      { qty: 64, nuggets: 3 }
+  LIGHT_GRAY_STAINED_GLASS:{ qty: 64, nuggets: 3 }
+  CYAN_STAINED_GLASS:      { qty: 64, nuggets: 3 }
+  PURPLE_STAINED_GLASS:    { qty: 64, nuggets: 3 }
+  BLUE_STAINED_GLASS:      { qty: 64, nuggets: 3 }
+  BROWN_STAINED_GLASS:     { qty: 64, nuggets: 3 }
+  GREEN_STAINED_GLASS:     { qty: 64, nuggets: 3 }
+  RED_STAINED_GLASS:       { qty: 64, nuggets: 3 }
+  BLACK_STAINED_GLASS:     { qty: 64, nuggets: 3 }
+
+  # ── Wool (all colors same price) ─────────────────────────────────────────
+  WHITE_WOOL:      { qty: 64, nuggets: 13 }
+  ORANGE_WOOL:     { qty: 64, nuggets: 13 }
+  MAGENTA_WOOL:    { qty: 64, nuggets: 13 }
+  LIGHT_BLUE_WOOL: { qty: 64, nuggets: 13 }
+  YELLOW_WOOL:     { qty: 64, nuggets: 13 }
+  LIME_WOOL:       { qty: 64, nuggets: 13 }
+  PINK_WOOL:       { qty: 64, nuggets: 13 }
+  GRAY_WOOL:       { qty: 64, nuggets: 13 }
+  LIGHT_GRAY_WOOL: { qty: 64, nuggets: 13 }
+  CYAN_WOOL:       { qty: 64, nuggets: 13 }
+  PURPLE_WOOL:     { qty: 64, nuggets: 13 }
+  BLUE_WOOL:       { qty: 64, nuggets: 13 }
+  BROWN_WOOL:      { qty: 64, nuggets: 13 }
+  GREEN_WOOL:      { qty: 64, nuggets: 13 }
+  RED_WOOL:        { qty: 64, nuggets: 13 }
+  BLACK_WOOL:      { qty: 64, nuggets: 13 }
+
+  # ── Concrete (all colors same price) ─────────────────────────────────────
+  WHITE_CONCRETE:      { qty: 64, nuggets: 4 }
+  ORANGE_CONCRETE:     { qty: 64, nuggets: 4 }
+  MAGENTA_CONCRETE:    { qty: 64, nuggets: 4 }
+  LIGHT_BLUE_CONCRETE: { qty: 64, nuggets: 4 }
+  YELLOW_CONCRETE:     { qty: 64, nuggets: 4 }
+  LIME_CONCRETE:       { qty: 64, nuggets: 4 }
+  PINK_CONCRETE:       { qty: 64, nuggets: 4 }
+  GRAY_CONCRETE:       { qty: 64, nuggets: 4 }
+  LIGHT_GRAY_CONCRETE: { qty: 64, nuggets: 4 }
+  CYAN_CONCRETE:       { qty: 64, nuggets: 4 }
+  PURPLE_CONCRETE:     { qty: 64, nuggets: 4 }
+  BLUE_CONCRETE:       { qty: 64, nuggets: 4 }
+  BROWN_CONCRETE:      { qty: 64, nuggets: 4 }
+  GREEN_CONCRETE:      { qty: 64, nuggets: 4 }
+  RED_CONCRETE:        { qty: 64, nuggets: 4 }
+  BLACK_CONCRETE:      { qty: 64, nuggets: 4 }
+
+  # ── Ore & Mineral Blocks ──────────────────────────────────────────────────
+  LAPIS_BLOCK:     { qty: 10, nuggets: 45 }
+  IRON_BLOCK:      { qty: 1,  nuggets: 18 }
+  DIAMOND_BLOCK:   { qty: 1,  nuggets: 324 }
+  REDSTONE_BLOCK:  { qty: 10, nuggets: 18 }
+  QUARTZ_BLOCK:    { qty: 4,  nuggets: 9 }
+  COAL_BLOCK:      { qty: 1,  nuggets: 3 }
+  EMERALD_BLOCK:   { qty: 1,  nuggets: 180 }
+  SLIME_BLOCK:     { qty: 1,  nuggets: 18 }
+
+  # ── Nether / End ─────────────────────────────────────────────────────────
+  GLOWSTONE:        { qty: 10, nuggets: 18 }
+  NETHER_WART:      { qty: 25, nuggets: 4 }
+  MAGMA_BLOCK:      { qty: 10, nuggets: 5 }
+  NETHER_BRICK:     { qty: 64, nuggets: 4 }
+  QUARTZ:           { qty: 16, nuggets: 9 }
+  GLOWSTONE_DUST:   { qty: 64, nuggets: 18 }
+  BLAZE_ROD:        { qty: 4,  nuggets: 27 }
+  BLAZE_POWDER:     { qty: 8,  nuggets: 27 }
+  GHAST_TEAR:       { qty: 1,  nuggets: 36 }
+  MAGMA_CREAM:      { qty: 1,  nuggets: 45 }
+  NETHER_STAR:      { qty: 1,  nuggets: 360 }
+  DRAGON_EGG:       { qty: 1,  nuggets: 720 }
+  END_CRYSTAL:      { qty: 1,  nuggets: 45 }
+  DRAGON_BREATH:    { qty: 1,  nuggets: 45 }
+  ELYTRA:           { qty: 1,  nuggets: 675 }
+  CHORUS_FRUIT:     { qty: 16, nuggets: 5 }
+  SHULKER_SHELL:    { qty: 1,  nuggets: 108 }
+  ENDER_PEARL:      { qty: 1,  nuggets: 8 }
+  ENDER_EYE:        { qty: 1,  nuggets: 18 }
+
+  # ── Raw Materials ─────────────────────────────────────────────────────────
+  COAL:             { qty: 9,  nuggets: 3 }
+  IRON_INGOT:       { qty: 9,  nuggets: 18 }
+  DIAMOND:          { qty: 1,  nuggets: 36 }
+  EMERALD:          { qty: 9,  nuggets: 180 }
+  LAPIS_LAZULI:     { qty: 9,  nuggets: 9 }
+  REDSTONE:         { qty: 64, nuggets: 18 }
+  FLINT:            { qty: 10, nuggets: 7 }
+  LEATHER:          { qty: 16, nuggets: 9 }
+  STRING:           { qty: 10, nuggets: 9 }
+  FEATHER:          { qty: 10, nuggets: 5 }
+  GUNPOWDER:        { qty: 5,  nuggets: 27 }
+  BONE:             { qty: 10, nuggets: 9 }
+  SLIMEBALL:        { qty: 1,  nuggets: 9 }
+  PRISMARINE_SHARD: { qty: 10, nuggets: 27 }
+  PRISMARINE_CRYSTALS: { qty: 2, nuggets: 9 }
+  SUGAR:            { qty: 32, nuggets: 3 }
+  CLAY_BALL:        { qty: 64, nuggets: 4 }
+  BRICK:            { qty: 32, nuggets: 5 }
+  SUGAR_CANE:       { qty: 64, nuggets: 18 }
+
+  # ── Mob Drops ─────────────────────────────────────────────────────────────
+  ROTTEN_FLESH:     { qty: 64, nuggets: 9 }
+  SPIDER_EYE:       { qty: 5,  nuggets: 9 }
+  FERMENTED_SPIDER_EYE: { qty: 2, nuggets: 9 }
+  GUNPOWDER:        { qty: 5,  nuggets: 27 }
+  ARROW:            { qty: 10, nuggets: 4 }
+  SNOWBALL:         { qty: 64, nuggets: 1 }
+  EGG:              { qty: 10, nuggets: 6 }
+  RABBIT_FOOT:      { qty: 1,  nuggets: 9 }
+  RABBIT_HIDE:      { qty: 4,  nuggets: 9 }
+  TOTEM_OF_UNDYING: { qty: 1,  nuggets: 225 }
+  TRIDENT:          { qty: 1,  nuggets: 180 }
+
+  # Mob Heads
+  ZOMBIE_HEAD:           { qty: 1, nuggets: 27 }
+  SKELETON_SKULL:        { qty: 1, nuggets: 27 }
+  CREEPER_HEAD:          { qty: 1, nuggets: 27 }
+  PIGLIN_HEAD:           { qty: 1, nuggets: 27 }
+  WITHER_SKELETON_SKULL: { qty: 1, nuggets: 180 }
+
+  # ── Food ──────────────────────────────────────────────────────────────────
+  APPLE:            { qty: 10, nuggets: 18 }
+  WHEAT:            { qty: 9,  nuggets: 5 }
+  BREAD:            { qty: 3,  nuggets: 5 }
+  PORKCHOP:         { qty: 10, nuggets: 7 }
+  COOKED_PORKCHOP:  { qty: 6,  nuggets: 9 }
+  BEEF:             { qty: 8,  nuggets: 9 }
+  COOKED_BEEF:      { qty: 5,  nuggets: 9 }
+  CHICKEN:          { qty: 10, nuggets: 5 }
+  COOKED_CHICKEN:   { qty: 10, nuggets: 9 }
+  MUTTON:           { qty: 10, nuggets: 9 }
+  COOKED_MUTTON:    { qty: 6,  nuggets: 9 }
+  RABBIT:           { qty: 4,  nuggets: 9 }
+  COOKED_RABBIT:    { qty: 3,  nuggets: 9 }
+  COD:              { qty: 2,  nuggets: 3 }
+  SALMON:           { qty: 2,  nuggets: 4 }
+  TROPICAL_FISH:    { qty: 2,  nuggets: 4 }
+  PUFFERFISH:       { qty: 1,  nuggets: 5 }
+  CARROT:           { qty: 32, nuggets: 4 }
+  POTATO:           { qty: 32, nuggets: 4 }
+  BAKED_POTATO:     { qty: 16, nuggets: 4 }
+  POISONOUS_POTATO: { qty: 4,  nuggets: 8 }
+  BEETROOT:         { qty: 32, nuggets: 3 }
+  MELON_SLICE:      { qty: 64, nuggets: 18 }
+  PUMPKIN_PIE:      { qty: 1,  nuggets: 9 }
+  CAKE:             { qty: 1,  nuggets: 27 }
+  COOKIE:           { qty: 64, nuggets: 18 }
+  MUSHROOM_STEW:    { qty: 1,  nuggets: 2 }
+  RABBIT_STEW:      { qty: 1,  nuggets: 27 }
+  BEETROOT_SOUP:    { qty: 1,  nuggets: 5 }
+  GOLDEN_APPLE:     { qty: 1,  nuggets: 63 }
+  ENCHANTED_GOLDEN_APPLE: { qty: 1, nuggets: 405 }
+  GOLDEN_CARROT:    { qty: 1,  nuggets: 9 }
+  GLISTERING_MELON_SLICE: { qty: 1, nuggets: 9 }
+
+  # ── Farming / Misc ────────────────────────────────────────────────────────
+  PAPER:            { qty: 16, nuggets: 5 }
+  BOOK:             { qty: 4,  nuggets: 6 }
+  SADDLE:           { qty: 1,  nuggets: 27 }
+  LEAD:             { qty: 1,  nuggets: 4 }
+  BUCKET:           { qty: 1,  nuggets: 5 }
+  CLOCK:            { qty: 1,  nuggets: 27 }
+  BOW:              { qty: 1,  nuggets: 2 }
+  FISHING_ROD:      { qty: 1,  nuggets: 4 }
+  SHEARS:           { qty: 1,  nuggets: 5 }
+  FIRE_CHARGE:      { qty: 2,  nuggets: 9 }
+  CARROT_ON_A_STICK:{ qty: 1,  nuggets: 7 }
+
+  # ── Tools ─────────────────────────────────────────────────────────────────
+  IRON_SHOVEL:      { qty: 1, nuggets: 2 }
+  IRON_PICKAXE:     { qty: 1, nuggets: 3 }
+  IRON_AXE:         { qty: 1, nuggets: 3 }
+  IRON_HOE:         { qty: 1, nuggets: 3 }
+  DIAMOND_SHOVEL:   { qty: 1, nuggets: 29 }
+  DIAMOND_PICKAXE:  { qty: 1, nuggets: 86 }
+  DIAMOND_AXE:      { qty: 1, nuggets: 86 }
+  DIAMOND_HOE:      { qty: 1, nuggets: 58 }
+  GOLDEN_SHOVEL:    { qty: 1, nuggets: 5 }
+  GOLDEN_PICKAXE:   { qty: 1, nuggets: 18 }
+  GOLDEN_AXE:       { qty: 1, nuggets: 18 }
+  GOLDEN_HOE:       { qty: 1, nuggets: 9 }
+
+  # ── Swords ────────────────────────────────────────────────────────────────
+  IRON_SWORD:       { qty: 1, nuggets: 3 }
+  DIAMOND_SWORD:    { qty: 1, nuggets: 58 }
+  GOLDEN_SWORD:     { qty: 1, nuggets: 9 }
+
+  # ── Armor ─────────────────────────────────────────────────────────────────
+  # Leather
+  LEATHER_HELMET:      { qty: 1, nuggets: 2 }
+  LEATHER_CHESTPLATE:  { qty: 1, nuggets: 4 }
+  LEATHER_LEGGINGS:    { qty: 1, nuggets: 3 }
+  LEATHER_BOOTS:       { qty: 1, nuggets: 2 }
+  # Chainmail
+  CHAINMAIL_HELMET:    { qty: 1, nuggets: 27 }
+  CHAINMAIL_CHESTPLATE:{ qty: 1, nuggets: 45 }
+  CHAINMAIL_LEGGINGS:  { qty: 1, nuggets: 36 }
+  CHAINMAIL_BOOTS:     { qty: 1, nuggets: 27 }
+  # Iron (material cost -20%: 1 ingot = 2 nuggets)
+  IRON_HELMET:         { qty: 1, nuggets: 8 }
+  IRON_CHESTPLATE:     { qty: 1, nuggets: 13 }
+  IRON_LEGGINGS:       { qty: 1, nuggets: 11 }
+  IRON_BOOTS:          { qty: 1, nuggets: 6 }
+  # Gold
+  GOLDEN_HELMET:       { qty: 1, nuggets: 18 }
+  GOLDEN_CHESTPLATE:   { qty: 1, nuggets: 36 }
+  GOLDEN_LEGGINGS:     { qty: 1, nuggets: 27 }
+  GOLDEN_BOOTS:        { qty: 1, nuggets: 18 }
+  # Diamond (material cost -20%: 1 diamond = 36 nuggets)
+  DIAMOND_HELMET:      { qty: 1, nuggets: 144 }
+  DIAMOND_CHESTPLATE:  { qty: 1, nuggets: 230 }
+  DIAMOND_LEGGINGS:    { qty: 1, nuggets: 202 }
+  DIAMOND_BOOTS:       { qty: 1, nuggets: 115 }
+
+  # ── Horse Armor (material cost -20%) ─────────────────────────────────────
+  IRON_HORSE_ARMOR:    { qty: 1, nuggets: 11 }
+  GOLDEN_HORSE_ARMOR:  { qty: 1, nuggets: 50 }
+  DIAMOND_HORSE_ARMOR: { qty: 1, nuggets: 202 }
+
+  # ── Music Discs (all same price) ─────────────────────────────────────────
+  MUSIC_DISC_13:             { qty: 1, nuggets: 36 }
+  MUSIC_DISC_CAT:            { qty: 1, nuggets: 36 }
+  MUSIC_DISC_BLOCKS:         { qty: 1, nuggets: 36 }
+  MUSIC_DISC_CHIRP:          { qty: 1, nuggets: 36 }
+  MUSIC_DISC_FAR:            { qty: 1, nuggets: 36 }
+  MUSIC_DISC_MALL:           { qty: 1, nuggets: 36 }
+  MUSIC_DISC_MELLOHI:        { qty: 1, nuggets: 36 }
+  MUSIC_DISC_STAL:           { qty: 1, nuggets: 36 }
+  MUSIC_DISC_STRAD:          { qty: 1, nuggets: 36 }
+  MUSIC_DISC_WARD:           { qty: 1, nuggets: 36 }
+  MUSIC_DISC_11:             { qty: 1, nuggets: 36 }
+  MUSIC_DISC_WAIT:           { qty: 1, nuggets: 36 }
+  MUSIC_DISC_OTHERSIDE:      { qty: 1, nuggets: 36 }
+  MUSIC_DISC_5:              { qty: 1, nuggets: 36 }
+  MUSIC_DISC_PIGSTEP:        { qty: 1, nuggets: 36 }
+  MUSIC_DISC_RELIC:          { qty: 1, nuggets: 36 }
+  MUSIC_DISC_CREATOR:        { qty: 1, nuggets: 36 }
+  MUSIC_DISC_PRECIPICE:      { qty: 1, nuggets: 36 }

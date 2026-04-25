@@ -24,50 +24,37 @@ public class MarketManager {
 
     private static final double FLOOR             = 0.30;
     private static final double DECAY_PER_STACK   = 0.03;
-    private static final double RECOVERY_PER_STEP = 0.01; // per 10-minute tick
-    private static final int    SELLER_THRESHOLD  = 2;    // decay only when uniqueSellers > 2
-    private static final long   WINDOW_MS         = 3_600_000L; // 1-hour rolling window
+    private static final double RECOVERY_PER_STEP = 0.01;
+    private static final int    SELLER_THRESHOLD  = 2;
+    private static final long   WINDOW_MS         = 3_600_000L;
+
+    // Canonical price bundle: sell qty items → receive nuggets gold
+    record PriceEntry(int qty, int nuggets) {
+        double perItem() { return (double) nuggets / qty; }
+    }
 
     private final AnnouncePlugin plugin;
-    private final File pricesFile;
     private final File stateFile;
 
-    // nuggets per single item at base (100%) price
-    private final Map<Material, Integer> basePrices    = new EnumMap<>(Material.class);
-    // current market multiplier per item (1.0 = full, 0.30 = floor)
-    private final Map<Material, Double>  multipliers   = new EnumMap<>(Material.class);
-    // rolling seller window: material -> uuid -> timestamp of their most recent sale
+    private final Map<Material, PriceEntry> prices      = new EnumMap<>(Material.class);
+    private final Map<Material, Double>     multipliers = new EnumMap<>(Material.class);
     private final Map<Material, Map<UUID, Long>> recentSellers = new EnumMap<>(Material.class);
-
     private final Set<UUID> tellerEntityUuids = new HashSet<>();
 
     public MarketManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
-        pricesFile = new File(plugin.getDataFolder(), "market_prices.yml");
-        stateFile  = new File(plugin.getDataFolder(), "market_state.yml");
-        initPricesFile();
+        stateFile = new File(plugin.getDataFolder(), "market_state.yml");
+        plugin.saveResource("market_prices.yml", false); // extract default if missing
         loadPrices();
         loadState();
         scanForTellers();
     }
 
-    // ── Init ──────────────────────────────────────────────────────────────────
-
-    private void initPricesFile() {
-        if (pricesFile.exists()) return;
-        try {
-            pricesFile.getParentFile().mkdirs();
-            pricesFile.createNewFile();
-            YamlConfiguration defaults = new YamlConfiguration();
-            defaults.set("prices.IRON_INGOT", 2);
-            defaults.save(pricesFile);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    // ── Setup ─────────────────────────────────────────────────────────────────
 
     private void loadPrices() {
-        basePrices.clear();
+        prices.clear();
+        File pricesFile = new File(plugin.getDataFolder(), "market_prices.yml");
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(pricesFile);
         if (!cfg.isConfigurationSection("prices")) return;
         for (String key : cfg.getConfigurationSection("prices").getKeys(false)) {
@@ -76,9 +63,12 @@ public class MarketManager {
                 plugin.getLogger().warning("[Market] Unknown material in market_prices.yml: " + key);
                 continue;
             }
-            basePrices.put(mat, cfg.getInt("prices." + key));
+            int qty     = cfg.getInt("prices." + key + ".qty", 1);
+            int nuggets = cfg.getInt("prices." + key + ".nuggets", 0);
+            if (qty <= 0 || nuggets <= 0) continue;
+            prices.put(mat, new PriceEntry(qty, nuggets));
         }
-        plugin.getLogger().info("[Market] Loaded " + basePrices.size() + " tradeable item(s).");
+        plugin.getLogger().info("[Market] Loaded " + prices.size() + " tradeable item(s).");
     }
 
     private void loadState() {
@@ -118,22 +108,22 @@ public class MarketManager {
     }
 
     public boolean isListed(Material mat) {
-        return basePrices.containsKey(mat);
-    }
-
-    public int getBasePrice(Material mat) {
-        return basePrices.getOrDefault(mat, 0);
+        return prices.containsKey(mat);
     }
 
     public double getMultiplier(Material mat) {
         return multipliers.getOrDefault(mat, 1.0);
     }
 
-    // Nuggets paid per single item at the current market rate
-    public int getEffectivePricePerItem(Material mat) {
-        int base = basePrices.getOrDefault(mat, 0);
-        if (base == 0) return 0;
-        return Math.max(1, (int)(base * getMultiplier(mat)));
+    public PriceEntry getBaseEntry(Material mat) {
+        return prices.get(mat);
+    }
+
+    // Nuggets paid for selling `amount` items at current market rate
+    public int calculatePayout(Material mat, int amount) {
+        PriceEntry entry = prices.get(mat);
+        if (entry == null) return 0;
+        return (int)(amount * entry.perItem() * getMultiplier(mat));
     }
 
     // Sell the full stack in the player's main hand. Returns nuggets paid, or -1 if not listed.
@@ -142,11 +132,10 @@ public class MarketManager {
         if (!isListed(mat)) return -1;
 
         int amount = stack.getAmount();
-        int payout = amount * getEffectivePricePerItem(mat);
+        int payout = calculatePayout(mat, amount);
 
         player.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
         GoldUtil.addGold(player, payout);
-
         applyDecay(mat, player.getUniqueId(), amount);
         return payout;
     }
@@ -157,20 +146,17 @@ public class MarketManager {
 
         long cutoff = System.currentTimeMillis() - WINDOW_MS;
         long uniqueCount = sellers.values().stream().filter(ts -> ts >= cutoff).count();
-
         if (uniqueCount <= SELLER_THRESHOLD) return;
 
         double stacks  = Math.ceil(amount / 64.0);
         double current = multipliers.getOrDefault(mat, 1.0);
-        double next    = Math.max(FLOOR, current - stacks * DECAY_PER_STACK);
-        multipliers.put(mat, next);
+        multipliers.put(mat, Math.max(FLOOR, current - stacks * DECAY_PER_STACK));
         saveState();
     }
 
-    // Called every 10 minutes — nudges depressed prices back toward 100%
     public void recoverPrices() {
         boolean changed = false;
-        for (Material mat : basePrices.keySet()) {
+        for (Material mat : prices.keySet()) {
             double current = multipliers.getOrDefault(mat, 1.0);
             if (current < 1.0) {
                 multipliers.put(mat, Math.min(1.0, current + RECOVERY_PER_STEP));
@@ -192,7 +178,8 @@ public class MarketManager {
         tellerEntityUuids.add(teller.getUniqueId());
     }
 
-    // Shared helper used by PriceCommand and MarketTellerListener
+    // ── Shared display helpers ────────────────────────────────────────────────
+
     public static String formatMaterial(Material mat) {
         String[] words = mat.name().toLowerCase().split("_");
         StringBuilder sb = new StringBuilder();
@@ -204,10 +191,10 @@ public class MarketManager {
     }
 
     public static String formatNuggets(int nuggets) {
-        int blocks  = nuggets / 81;
-        int rem     = nuggets % 81;
-        int ingots  = rem / 9;
-        int nug     = rem % 9;
+        int blocks = nuggets / 81;
+        int rem    = nuggets % 81;
+        int ingots = rem / 9;
+        int nug    = rem % 9;
         StringBuilder sb = new StringBuilder();
         if (blocks > 0) sb.append(blocks).append(" gold block").append(blocks > 1 ? "s" : "");
         if (ingots > 0) { if (sb.length() > 0) sb.append(", "); sb.append(ingots).append(" gold ingot").append(ingots > 1 ? "s" : ""); }
