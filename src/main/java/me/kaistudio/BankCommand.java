@@ -32,6 +32,18 @@ public class BankCommand {
                     sender.sendMessage(Component.text("Market reset. All prices are back to 0%.", NamedTextColor.GREEN));
                     return 1;
                 }))
+            .then(Commands.literal("debug")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    MarketManager m = plugin.getMarketManager();
+                    int count = m.getPriceCount();
+                    sender.sendMessage(Component.text("[Market] Prices loaded: " + count, NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("[Market] IRON_INGOT listed: " + m.isListed(org.bukkit.Material.IRON_INGOT), NamedTextColor.YELLOW));
+                    sender.sendMessage(Component.text("[Market] DIAMOND listed: " + m.isListed(org.bukkit.Material.DIAMOND), NamedTextColor.YELLOW));
+                    java.io.File f = new java.io.File(plugin.getDataFolder(), "market_prices.yml");
+                    sender.sendMessage(Component.text("[Market] prices file exists: " + f.exists() + " size: " + f.length() + "b", NamedTextColor.YELLOW));
+                    return 1;
+                }))
             .then(Commands.literal("leaderboard")
                 .executes(ctx -> {
                     CommandSender sender = ctx.getSource().getSender();

@@ -118,6 +118,8 @@ public class MarketManager {
         return tellerEntityUuids.contains(entity.getUniqueId());
     }
 
+    public int getPriceCount() { return prices.size(); }
+
     public boolean isListed(Material mat) {
         return prices.containsKey(mat);
     }
