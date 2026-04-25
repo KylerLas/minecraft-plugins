@@ -56,15 +56,20 @@ public class PayCommand {
             )
             .then(Commands.argument("player", ArgumentTypes.player())
                 .then(Commands.argument("amount", IntegerArgumentType.integer(1))
-                    .executes(ctx -> doPay(ctx, false))
+                    .executes(ctx -> doPay(ctx, 9))
                     .then(Commands.literal("nugget")
-                        .executes(ctx -> doPay(ctx, true)))
+                        .executes(ctx -> doPay(ctx, 1)))
+                    .then(Commands.literal("ingot")
+                        .executes(ctx -> doPay(ctx, 9)))
+                    .then(Commands.literal("block")
+                        .executes(ctx -> doPay(ctx, 81)))
                 )
             )
             .build();
     }
 
-    private int doPay(CommandContext<CommandSourceStack> ctx, boolean nuggetMode) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+    // nuggetsPerUnit: 1 = nugget, 9 = ingot/default, 81 = block
+    private int doPay(CommandContext<CommandSourceStack> ctx, int nuggetsPerUnit) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         if (!(ctx.getSource().getSender() instanceof Player sender)) {
             ctx.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
             return 0;
@@ -86,7 +91,7 @@ public class PayCommand {
         }
 
         int amount = IntegerArgumentType.getInteger(ctx, "amount");
-        int nuggets = nuggetMode ? amount : amount * 9;
+        int nuggets = amount * nuggetsPerUnit;
         int senderNuggets = GoldUtil.countNuggets(sender.getInventory());
 
         if (senderNuggets < nuggets) {
@@ -99,9 +104,12 @@ public class PayCommand {
         GoldUtil.removeGold(sender, nuggets);
         GoldUtil.addGold(target, nuggets);
 
-        String amountStr = nuggetMode
-            ? amount + (amount == 1 ? " nugget" : " nuggets")
-            : GoldUtil.format(nuggets);
+        String unit = switch (nuggetsPerUnit) {
+            case 1  -> amount == 1 ? "nugget" : "nuggets";
+            case 81 -> amount == 1 ? "gold block" : "gold blocks";
+            default -> GoldUtil.format(nuggets); // ingot/default — show as "X gold"
+        };
+        String amountStr = nuggetsPerUnit == 9 ? unit : amount + " " + unit;
 
         sender.sendMessage(Component.text("Paid " + amountStr + " to " + target.getName() + ".", NamedTextColor.GREEN));
         target.sendMessage(Component.text(sender.getName() + " paid you " + amountStr + ".", NamedTextColor.GREEN));

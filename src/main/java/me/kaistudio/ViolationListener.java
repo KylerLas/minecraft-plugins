@@ -95,6 +95,7 @@ public class ViolationListener implements Listener {
             ItemMeta meta = note.getItemMeta();
             meta.displayName(Component.text("Official Fine Notice", NamedTextColor.RED));
             meta.lore(List.of(
+                Component.text("Issued to: " + player.getName(), NamedTextColor.YELLOW),
                 Component.text("You have been fined " + amount + " gold", NamedTextColor.WHITE),
                 Component.text("for: " + reason + ".", NamedTextColor.WHITE),
                 Component.text("Pay up or face the consequences.", NamedTextColor.GRAY)
