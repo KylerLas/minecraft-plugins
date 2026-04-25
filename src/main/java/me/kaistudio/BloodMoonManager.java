@@ -42,7 +42,7 @@ public class BloodMoonManager {
     private Objective  killObjective = null;
 
     private final Map<World, Integer> originalMonsterLimit = new HashMap<>();
-    private final Map<World, Long>    originalMonsterTicks = new HashMap<>();
+    private final Map<World, Integer> originalMonsterTicks = new HashMap<>();
 
     public BloodMoonManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
@@ -145,18 +145,18 @@ public class BloodMoonManager {
         originalMonsterTicks.clear();
         for (World world : Bukkit.getWorlds()) {
             int limit = world.getMonsterSpawnLimit();
-            long ticks = world.getTicksPerMonsterSpawns();
+            int ticks = world.getTicksPerMonsterSpawns();
             originalMonsterLimit.put(world, limit);
             originalMonsterTicks.put(world, ticks);
             world.setMonsterSpawnLimit(limit * 2);
-            world.setTicksPerMonsterSpawns(Math.max(1L, ticks / 2));
+            world.setTicksPerMonsterSpawns(Math.max(1, ticks / 2));
         }
     }
 
     private void restoreSpawnRates() {
         for (Map.Entry<World, Integer> e : originalMonsterLimit.entrySet())
             e.getKey().setMonsterSpawnLimit(e.getValue());
-        for (Map.Entry<World, Long> e : originalMonsterTicks.entrySet())
+        for (Map.Entry<World, Integer> e : originalMonsterTicks.entrySet())
             e.getKey().setTicksPerMonsterSpawns(e.getValue());
         originalMonsterLimit.clear();
         originalMonsterTicks.clear();

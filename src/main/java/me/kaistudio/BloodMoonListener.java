@@ -1,6 +1,9 @@
 package me.kaistudio;
 
 import org.bukkit.Material;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.LivingEntity;
@@ -49,7 +52,10 @@ public class BloodMoonListener implements Listener {
         boolean isBoss = random.nextInt(BOSS_CHANCE) == 0;
         double healthMult = isBoss ? BOSS_HEALTH_MULT : BLOODMOON_HEALTH_MULT;
 
-        AttributeInstance healthAttr = mob.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        Attribute maxHealthAttr = RegistryAccess.registryAccess()
+            .getRegistry(RegistryKey.ATTRIBUTE)
+            .get(NamespacedKey.minecraft("max_health"));
+        AttributeInstance healthAttr = maxHealthAttr != null ? mob.getAttribute(maxHealthAttr) : null;
         if (healthAttr != null) {
             double newMax = healthAttr.getBaseValue() * healthMult;
             healthAttr.setBaseValue(newMax);
@@ -60,7 +66,10 @@ public class BloodMoonListener implements Listener {
         }
 
         if (isBoss) {
-            AttributeInstance speedAttr = mob.getAttribute(Attribute.GENERIC_MOVEMENT_SPEED);
+            Attribute moveSpeedAttr = RegistryAccess.registryAccess()
+                .getRegistry(RegistryKey.ATTRIBUTE)
+                .get(NamespacedKey.minecraft("movement_speed"));
+            AttributeInstance speedAttr = moveSpeedAttr != null ? mob.getAttribute(moveSpeedAttr) : null;
             if (speedAttr != null) speedAttr.setBaseValue(speedAttr.getBaseValue() * BOSS_SPEED_MULT);
             mob.setCustomName("§4☠ §c§lBOSS");
             mob.setCustomNameVisible(true);
