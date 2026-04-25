@@ -64,7 +64,7 @@ public class PayCommand {
             .build();
     }
 
-    private int doPay(CommandContext<CommandSourceStack> ctx, boolean nuggetMode) {
+    private int doPay(CommandContext<CommandSourceStack> ctx, boolean nuggetMode) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
         if (!(ctx.getSource().getSender() instanceof Player sender)) {
             ctx.getSource().getSender().sendMessage(Component.text("Only players can use this command.", NamedTextColor.RED));
             return 0;
