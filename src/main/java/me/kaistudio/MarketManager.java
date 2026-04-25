@@ -55,7 +55,10 @@ public class MarketManager {
         prices.clear();
         File pricesFile = new File(plugin.getDataFolder(), "market_prices.yml");
         YamlConfiguration cfg = YamlConfiguration.loadConfiguration(pricesFile);
-        if (!cfg.isConfigurationSection("prices")) return;
+        if (!cfg.isConfigurationSection("prices")) {
+            plugin.getLogger().severe("[Market] market_prices.yml failed to parse or has no 'prices' section — check for duplicate keys!");
+            return;
+        }
         for (String key : cfg.getConfigurationSection("prices").getKeys(false)) {
             Material mat = Material.matchMaterial(key);
             if (mat == null) {

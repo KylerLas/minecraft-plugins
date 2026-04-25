@@ -154,7 +154,6 @@ prices:
   ROTTEN_FLESH:     { qty: 64, nuggets: 9 }
   SPIDER_EYE:       { qty: 5,  nuggets: 9 }
   FERMENTED_SPIDER_EYE: { qty: 2, nuggets: 9 }
-  GUNPOWDER:        { qty: 5,  nuggets: 27 }
   ARROW:            { qty: 10, nuggets: 4 }
   SNOWBALL:         { qty: 64, nuggets: 1 }
   EGG:              { qty: 10, nuggets: 6 }
