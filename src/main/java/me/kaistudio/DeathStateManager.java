@@ -149,13 +149,13 @@ public class DeathStateManager {
         nuggets += plugin.getGoldDropListener().countNuggets(player.getUniqueId());
         ChestTracker tracker = plugin.getChestTracker();
 
-        Set<Inventory> counted = new HashSet<>();
+        Set<Location> counted = new HashSet<>();
         for (Location loc : tracker.getChestLocations(player.getUniqueId())) {
             Block block = loc.getBlock();
             Inventory inv = null;
             if (block.getState() instanceof Chest chest) inv = chest.getInventory();
             else if (block.getState() instanceof Barrel barrel) inv = barrel.getInventory();
-            if (inv == null || !counted.add(inv)) continue;
+            if (inv == null || !counted.add(GoldUtil.chestKey(inv, loc))) continue;
             nuggets += GoldUtil.countNuggets(inv);
         }
 
@@ -202,16 +202,16 @@ public class DeathStateManager {
             }
         }
 
-        // Phase 2: chests and barrels
+        // Phase 3: chests and barrels
         if (collected < debtNuggets) {
-            Set<Inventory> counted = new HashSet<>();
+            Set<Location> countedChests = new HashSet<>();
             for (Location loc : tracker.getChestLocations(player.getUniqueId())) {
                 if (collected >= debtNuggets) break;
                 Block block = loc.getBlock();
                 Inventory inv = null;
                 if (block.getState() instanceof Chest chest) inv = chest.getInventory();
                 else if (block.getState() instanceof Barrel barrel) inv = barrel.getInventory();
-                if (inv == null || !counted.add(inv)) continue;
+                if (inv == null || !countedChests.add(GoldUtil.chestKey(inv, loc))) continue;
                 collected += drainGoldFromInventory(inv, debtNuggets - collected);
             }
         }

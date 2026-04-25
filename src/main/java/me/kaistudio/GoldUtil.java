@@ -1,7 +1,10 @@
 package me.kaistudio;
 
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -65,6 +68,18 @@ public class GoldUtil {
             }
             amount -= stackSize;
         }
+    }
+
+    // Returns a stable dedup key for a chest inventory.
+    // For double chests, Bukkit creates a new wrapper object on every call so
+    // Set<Inventory> equality fails — use the left-half block location instead.
+    public static Location chestKey(Inventory inv, Location fallback) {
+        if (inv instanceof DoubleChestInventory dci
+                && dci.getHolder() instanceof DoubleChest dc
+                && dc.getLeftSide() instanceof org.bukkit.block.Chest left) {
+            return left.getLocation();
+        }
+        return fallback;
     }
 
     private static void removeAllGold(PlayerInventory inv) {

@@ -41,9 +41,9 @@ public class GoldScanner implements Runnable {
         for (Player player : Bukkit.getOnlinePlayers()) {
             int nuggets = GoldUtil.countNuggets(player.getInventory());
 
-            // Chests and barrels — deduplicate double chests by inventory reference
-            // Ender chest locations are tracked for break protection but skipped here
-            Set<Inventory> counted = new HashSet<>();
+            // Chests and barrels — deduplicate double chests by canonical block location
+            // (Set<Inventory> fails because Bukkit returns a new wrapper object each call)
+            Set<Location> counted = new HashSet<>();
             List<Location> trackedLocs = plugin.getChestTracker().getChestLocations(player.getUniqueId());
             for (Location loc : trackedLocs) {
                 Block block = loc.getBlock();
@@ -54,7 +54,7 @@ public class GoldScanner implements Runnable {
                     inv = barrel.getInventory();
                 }
                 // Ender chest blocks return null here and are intentionally skipped
-                if (inv == null || !counted.add(inv)) continue;
+                if (inv == null || !counted.add(GoldUtil.chestKey(inv, loc))) continue;
                 nuggets += GoldUtil.countNuggets(inv);
             }
 
