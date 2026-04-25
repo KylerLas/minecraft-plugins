@@ -65,10 +65,19 @@ public class MarketManager {
                 plugin.getLogger().warning("[Market] Unknown material in market_prices.yml: " + key);
                 continue;
             }
-            int qty     = cfg.getInt("prices." + key + ".qty", 1);
-            int nuggets = cfg.getInt("prices." + key + ".nuggets", 0);
-            if (qty <= 0 || nuggets <= 0) continue;
-            prices.put(mat, new PriceEntry(qty, nuggets));
+            String val = cfg.getString("prices." + key, "");
+            String[] parts = val.split(":");
+            if (parts.length != 2) {
+                plugin.getLogger().warning("[Market] Bad format for " + key + " (expected qty:nuggets): " + val);
+                continue;
+            }
+            try {
+                int qty     = Integer.parseInt(parts[0].trim());
+                int nuggets = Integer.parseInt(parts[1].trim());
+                if (qty > 0 && nuggets > 0) prices.put(mat, new PriceEntry(qty, nuggets));
+            } catch (NumberFormatException e) {
+                plugin.getLogger().warning("[Market] Bad numbers for " + key + ": " + val);
+            }
         }
         plugin.getLogger().info("[Market] Loaded " + prices.size() + " tradeable item(s).");
     }
