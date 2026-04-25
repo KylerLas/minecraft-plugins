@@ -23,10 +23,12 @@ import java.util.UUID;
 
 public class BloodMoonListener implements Listener {
 
-    private static final double BLOODMOON_HEALTH_MULT = 1.35;
-    private static final double BOSS_HEALTH_MULT      = 1.35 * 2.5; // 3.375x base
-    private static final double BOSS_SPEED_MULT       = 1.20;
-    private static final int    BOSS_CHANCE           = 20;          // 1 in 20
+    private static final double BLOODMOON_HEALTH_MULT  = 1.35;
+    private static final double BOSS_HEALTH_MULT       = 1.35 * 2.5; // 3.375x base
+    private static final double BOSS_SPEED_MULT        = 1.20;
+    private static final double BLOODMOON_DAMAGE_MULT  = 1.25;
+    private static final double BOSS_DAMAGE_MULT       = 1.80;
+    private static final int    BOSS_CHANCE            = 20;          // 1 in 20
     private static final double LOOT_MIN              = 1.5;
     private static final double LOOT_MAX              = 2.0;
     private static final double NUGGET_CHANCE_REGULAR = 0.10;
@@ -64,6 +66,14 @@ public class BloodMoonListener implements Listener {
                 if (mob.isValid()) mob.setHealth(newMax);
             }, 1L);
         }
+
+        // Attack damage — bosses use 1.8x, regular bloodmoon mobs use 1.25x
+        double damageMult = isBoss ? BOSS_DAMAGE_MULT : BLOODMOON_DAMAGE_MULT;
+        Attribute attackDmgAttr = RegistryAccess.registryAccess()
+            .getRegistry(RegistryKey.ATTRIBUTE)
+            .get(NamespacedKey.minecraft("attack_damage"));
+        AttributeInstance damageAttr = attackDmgAttr != null ? mob.getAttribute(attackDmgAttr) : null;
+        if (damageAttr != null) damageAttr.setBaseValue(damageAttr.getBaseValue() * damageMult);
 
         if (isBoss) {
             Attribute moveSpeedAttr = RegistryAccess.registryAccess()
