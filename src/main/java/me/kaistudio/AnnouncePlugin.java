@@ -27,6 +27,7 @@ public class AnnouncePlugin extends JavaPlugin {
     private GoldDropListener goldDropListener;
     private MarketManager marketManager;
     private PurgeManager purgeManager;
+    private BloodMoonManager bloodMoonManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
@@ -37,6 +38,7 @@ public class AnnouncePlugin extends JavaPlugin {
     public GoldDropListener getGoldDropListener() { return goldDropListener; }
     public MarketManager getMarketManager() { return marketManager; }
     public PurgeManager getPurgeManager() { return purgeManager; }
+    public BloodMoonManager getBloodMoonManager() { return bloodMoonManager; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -67,6 +69,7 @@ public class AnnouncePlugin extends JavaPlugin {
         insuranceManager = new InsuranceManager(this);
         marketManager = new MarketManager(this);
         purgeManager = new PurgeManager(this);
+        bloodMoonManager = new BloodMoonManager(this);
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -78,6 +81,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InsuranceListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MarketTellerListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BloodMoonListener(this), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
@@ -90,6 +94,15 @@ public class AnnouncePlugin extends JavaPlugin {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (deathStateManager.isDead(player.getUniqueId())) {
                     player.sendActionBar(Component.text("☠ You are in Purgatory — type /pay death to revive", NamedTextColor.RED));
+                    continue;
+                }
+
+                // During blood moon (when no purge): show countdown
+                if (bloodMoonManager.isBloodMoonActive() && !purgeManager.isPurgeActive()) {
+                    int sec = bloodMoonManager.getRemainingSeconds();
+                    player.sendActionBar(Component.text(
+                        String.format("☽ BLOOD MOON — %d:%02d remaining", sec / 60, sec % 60),
+                        NamedTextColor.DARK_RED));
                     continue;
                 }
 
@@ -196,6 +209,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
             event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
             event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");
+            event.registrar().register(new BloodMoonCommand(this).build(), "Manage the Blood Moon event");
             event.registrar().register(
                 Commands.literal("spawnteller")
                     .executes(ctx -> {
