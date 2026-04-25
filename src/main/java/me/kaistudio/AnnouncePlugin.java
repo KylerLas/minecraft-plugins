@@ -9,6 +9,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.time.Duration;
@@ -78,8 +79,8 @@ public class AnnouncePlugin extends JavaPlugin {
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
 
-        // Market price recovery — +2% every 3 minutes (3600 ticks), tuned for short sessions
-        Bukkit.getScheduler().runTaskTimer(this, () -> marketManager.recoverPrices(), 3600L, 3600L);
+        // Market price recovery — managed by MarketManager so /bank percentage can reschedule it
+        marketManager.startRecoveryTask();
 
         // Action bar — purgatory reminder for ghosts; chest ownership for everyone else
         Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -87,6 +88,32 @@ public class AnnouncePlugin extends JavaPlugin {
                 if (deathStateManager.isDead(player.getUniqueId())) {
                     player.sendActionBar(Component.text("☠ You are in Purgatory — type /pay death to revive", NamedTextColor.RED));
                     continue;
+                }
+
+                // Teller proximity sell preview
+                ItemStack held = player.getInventory().getItemInMainHand();
+                if (held.getType() != Material.AIR && marketManager.isListed(held.getType())) {
+                    boolean nearTeller = player.getWorld()
+                        .getNearbyEntities(player.getLocation(), 4, 4, 4)
+                        .stream().anyMatch(e -> marketManager.isTeller(e));
+                    if (nearTeller) {
+                        int payout = marketManager.calculatePayout(held.getType(), held.getAmount());
+                        if (payout == 0) {
+                            player.sendActionBar(Component.text(
+                                held.getAmount() + "x " + MarketManager.formatMaterial(held.getType())
+                                + " — not worth 1 nugget", NamedTextColor.RED));
+                        } else {
+                            int pct = (int)(marketManager.getMultiplier(held.getType()) * 100) - 100;
+                            Component preview = Component.text(
+                                "Sell " + held.getAmount() + "x " + MarketManager.formatMaterial(held.getType())
+                                + " → " + MarketManager.formatNuggets(payout), NamedTextColor.YELLOW);
+                            if (pct != 0) {
+                                preview = preview.append(Component.text(" (" + pct + "%)", NamedTextColor.GRAY));
+                            }
+                            player.sendActionBar(preview);
+                        }
+                        continue;
+                    }
                 }
 
                 Block target = player.getTargetBlockExact(5);

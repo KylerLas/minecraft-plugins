@@ -34,14 +34,21 @@ public class MarketTellerListener implements Listener {
             return;
         }
 
-        int payout = plugin.getMarketManager().processSale(player, hand);
+        MarketManager market = plugin.getMarketManager();
 
-        if (payout < 0) {
+        if (!market.isListed(hand.getType())) {
             player.sendMessage(Component.text("That item cannot be sold at the bank.", NamedTextColor.RED));
             return;
         }
 
-        MarketManager market = plugin.getMarketManager();
+        int payout = market.calculatePayout(hand.getType(), hand.getAmount());
+        if (payout == 0) {
+            player.sendMessage(Component.text("This isn't even worth 1 nugget.", NamedTextColor.RED));
+            return;
+        }
+
+        market.processSale(player, hand);
+
         int pct = (int)(market.getMultiplier(hand.getType()) * 100);
         String marketNote = pct < 100 ? " §7(market: " + pct + "%)" : "";
 

@@ -1,5 +1,6 @@
 package me.kaistudio;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
@@ -76,6 +77,36 @@ public class BankCommand {
                     }
                     return 1;
                 }))
+            .then(Commands.literal("percentage")
+                .then(Commands.argument("minutes", IntegerArgumentType.integer(1))
+                    .then(Commands.argument("pct", IntegerArgumentType.integer(1, 100))
+                        .executes(ctx -> {
+                            CommandSender sender = ctx.getSource().getSender();
+                            if (!sender.isOp()) {
+                                sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
+                                return 0;
+                            }
+                            int minutes = IntegerArgumentType.getInteger(ctx, "minutes");
+                            int pct = IntegerArgumentType.getInteger(ctx, "pct");
+                            plugin.getMarketManager().setRecoveryParams(minutes, pct);
+                            sender.sendMessage(Component.text(
+                                "Recovery set: +" + pct + "% every " + minutes + " minute(s).", NamedTextColor.GREEN));
+                            return 1;
+                        }))))
+            .then(Commands.literal("depercentage")
+                .then(Commands.argument("amount", IntegerArgumentType.integer(0, 500))
+                    .executes(ctx -> {
+                        CommandSender sender = ctx.getSource().getSender();
+                        if (!sender.isOp()) {
+                            sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
+                            return 0;
+                        }
+                        int amount = IntegerArgumentType.getInteger(ctx, "amount");
+                        plugin.getMarketManager().setDepercentageMultiplier(amount);
+                        sender.sendMessage(Component.text(
+                            "Decay rate set to " + amount + "% of default.", NamedTextColor.GREEN));
+                        return 1;
+                    })))
             .build();
     }
 }

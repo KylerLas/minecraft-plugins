@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,6 +40,11 @@ public class MarketManager {
     private final Map<Material, Double>     multipliers = new EnumMap<>(Material.class);
     private final Map<Material, Map<UUID, Long>> recentSellers = new EnumMap<>(Material.class);
     private final Set<UUID> tellerEntityUuids = new HashSet<>();
+
+    private double depercentageMultiplier = 1.0;
+    private double recoveryStep = RECOVERY_PER_STEP;
+    private long recoveryIntervalTicks = 3600L;
+    private BukkitTask recoveryTask = null;
 
     public MarketManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
@@ -157,9 +163,9 @@ public class MarketManager {
         recentSellers.computeIfAbsent(mat, k -> new HashMap<>())
                      .put(sellerUuid, System.currentTimeMillis());
 
-        double stacks  = Math.ceil(amount / 64.0);
+        double stacks  = amount / 64.0;
         double current = multipliers.getOrDefault(mat, 1.0);
-        multipliers.put(mat, Math.max(FLOOR, current - stacks * DECAY_PER_STACK));
+        multipliers.put(mat, Math.max(FLOOR, current - stacks * DECAY_PER_STACK * depercentageMultiplier));
         saveState();
     }
 
@@ -183,7 +189,7 @@ public class MarketManager {
         for (Material mat : prices.keySet()) {
             double current = multipliers.getOrDefault(mat, 1.0);
             if (current < 1.0) {
-                multipliers.put(mat, Math.min(1.0, current + RECOVERY_PER_STEP));
+                multipliers.put(mat, Math.min(1.0, current + recoveryStep));
                 changed = true;
             }
         }
@@ -202,6 +208,22 @@ public class MarketManager {
         teller.setRecipes(java.util.Collections.emptyList());
         teller.getPersistentDataContainer().set(TELLER_TAG, PersistentDataType.BYTE, (byte) 1);
         tellerEntityUuids.add(teller.getUniqueId());
+    }
+
+    public void startRecoveryTask() {
+        if (recoveryTask != null) recoveryTask.cancel();
+        recoveryTask = Bukkit.getScheduler().runTaskTimer(
+            plugin, this::recoverPrices, recoveryIntervalTicks, recoveryIntervalTicks);
+    }
+
+    public void setRecoveryParams(int minutes, int pct) {
+        recoveryIntervalTicks = (long) minutes * 60 * 20;
+        recoveryStep = pct / 100.0;
+        startRecoveryTask();
+    }
+
+    public void setDepercentageMultiplier(int amount) {
+        depercentageMultiplier = amount / 100.0;
     }
 
     // ── Shared display helpers ────────────────────────────────────────────────
