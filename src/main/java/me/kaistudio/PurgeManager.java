@@ -16,6 +16,7 @@ public class PurgeManager {
     private long durationMs = 10 * 60 * 1000L;
     private boolean notificationsEnabled = true;
     private boolean forceNotificationsThisCycle = false;
+    private boolean disabled = false;
 
     private boolean purgeActive = false;
     private long nextPurgeStartMs;
@@ -49,6 +50,7 @@ public class PurgeManager {
     }
 
     private void tick() {
+        if (disabled) return;
         if (purgeActive) {
             if (System.currentTimeMillis() >= purgeEndMs) endPurge();
             return;
@@ -130,8 +132,17 @@ public class PurgeManager {
     }
 
     public boolean isPurgeActive()          { return purgeActive; }
+    public boolean isDisabled()             { return disabled; }
     public boolean isNotificationsEnabled() { return notificationsEnabled; }
     public void setNotificationsEnabled(boolean v) { notificationsEnabled = v; }
+
+    public void setDisabled(boolean v) {
+        disabled = v;
+        if (v && purgeActive) {
+            purgeActive = false;
+            plugin.getMarketManager().exitPurge();
+        }
+    }
 
     public int getSecondsToNextPurge() {
         if (purgeActive) return 0;

@@ -48,6 +48,7 @@ public class MarketManager {
 
     private boolean purgeActive = false;
     private final Map<Material, Double> purgeSnapshot = new EnumMap<>(Material.class);
+    private boolean buildModeEnabled = false;
 
     public MarketManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
@@ -215,6 +216,9 @@ public class MarketManager {
         teller.getPersistentDataContainer().set(TELLER_TAG, PersistentDataType.BYTE, (byte) 1);
         tellerEntityUuids.add(teller.getUniqueId());
     }
+
+    public boolean isBuildModeEnabled() { return buildModeEnabled; }
+    public void setBuildModeEnabled(boolean v) { buildModeEnabled = v; }
 
     public void enterPurge() {
         purgeSnapshot.clear();

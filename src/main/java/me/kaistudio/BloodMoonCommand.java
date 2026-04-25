@@ -98,6 +98,22 @@ public class BloodMoonCommand {
                         NamedTextColor.DARK_RED));
                     return 1;
                 }))
+            .then(Commands.literal("disable")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    plugin.getBloodMoonManager().setDisabled(true);
+                    sender.sendMessage(Component.text("Blood moon disabled. No blood moons will start until re-enabled.", NamedTextColor.YELLOW));
+                    return 1;
+                }))
+            .then(Commands.literal("enable")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    plugin.getBloodMoonManager().setDisabled(false);
+                    sender.sendMessage(Component.text("Blood moon enabled.", NamedTextColor.GREEN));
+                    return 1;
+                }))
             .then(Commands.literal("notify")
                 .then(Commands.literal("on")
                     .executes(ctx -> {
@@ -124,6 +140,9 @@ public class BloodMoonCommand {
                         sender.sendMessage(Component.text(
                             "Blood moon active — " + formatTime(bm.getRemainingSeconds()) + " remaining.",
                             NamedTextColor.DARK_RED));
+                    } else if (bm.isWaitingForNight()) {
+                        sender.sendMessage(Component.text(
+                            "Waiting for nightfall...", NamedTextColor.DARK_RED));
                     } else {
                         sender.sendMessage(Component.text(
                             "Next blood moon in " + formatTime(bm.getSecondsToNext()) + ".",

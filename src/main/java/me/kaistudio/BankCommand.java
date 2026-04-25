@@ -93,6 +93,29 @@ public class BankCommand {
                                 "Recovery set: +" + pct + "% every " + minutes + " minute(s).", NamedTextColor.GREEN));
                             return 1;
                         }))))
+            .then(Commands.literal("build")
+                .then(Commands.literal("on")
+                    .executes(ctx -> {
+                        CommandSender sender = ctx.getSource().getSender();
+                        if (!sender.isOp()) {
+                            sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
+                            return 0;
+                        }
+                        plugin.getMarketManager().setBuildModeEnabled(true);
+                        sender.sendMessage(Component.text("Bank build mode ON — the zone can now be edited.", NamedTextColor.GREEN));
+                        return 1;
+                    }))
+                .then(Commands.literal("off")
+                    .executes(ctx -> {
+                        CommandSender sender = ctx.getSource().getSender();
+                        if (!sender.isOp()) {
+                            sender.sendMessage(Component.text("You don't have permission.", NamedTextColor.RED));
+                            return 0;
+                        }
+                        plugin.getMarketManager().setBuildModeEnabled(false);
+                        sender.sendMessage(Component.text("Bank build mode OFF — the zone is protected.", NamedTextColor.RED));
+                        return 1;
+                    })))
             .then(Commands.literal("depercentage")
                 .then(Commands.argument("amount", IntegerArgumentType.integer(0, 500))
                     .executes(ctx -> {

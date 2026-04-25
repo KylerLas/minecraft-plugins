@@ -28,6 +28,7 @@ public class AnnouncePlugin extends JavaPlugin {
     private MarketManager marketManager;
     private PurgeManager purgeManager;
     private BloodMoonManager bloodMoonManager;
+    private PollManager pollManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
@@ -39,6 +40,7 @@ public class AnnouncePlugin extends JavaPlugin {
     public MarketManager getMarketManager() { return marketManager; }
     public PurgeManager getPurgeManager() { return purgeManager; }
     public BloodMoonManager getBloodMoonManager() { return bloodMoonManager; }
+    public PollManager getPollManager() { return pollManager; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -70,8 +72,9 @@ public class AnnouncePlugin extends JavaPlugin {
         marketManager = new MarketManager(this);
         purgeManager = new PurgeManager(this);
         bloodMoonManager = new BloodMoonManager(this);
+        pollManager = new PollManager(this);
 
-        Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new ViolationListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerJoinListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BlockListener(this), this);
@@ -82,6 +85,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new InsuranceListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MarketTellerListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BloodMoonListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new BankProtectionListener(this), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
@@ -210,6 +214,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
             event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");
             event.registrar().register(new BloodMoonCommand(this).build(), "Manage the Blood Moon event");
+            event.registrar().register(new PollCommand(this).build(), "Start a server poll");
             event.registrar().register(
                 Commands.literal("spawnteller")
                     .executes(ctx -> {

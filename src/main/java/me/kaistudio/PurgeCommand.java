@@ -98,6 +98,22 @@ public class PurgeCommand {
                         NamedTextColor.YELLOW));
                     return 1;
                 }))
+            .then(Commands.literal("disable")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    plugin.getPurgeManager().setDisabled(true);
+                    sender.sendMessage(Component.text("Purge disabled. No purges will start until re-enabled.", NamedTextColor.YELLOW));
+                    return 1;
+                }))
+            .then(Commands.literal("enable")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    plugin.getPurgeManager().setDisabled(false);
+                    sender.sendMessage(Component.text("Purge enabled.", NamedTextColor.GREEN));
+                    return 1;
+                }))
             .then(Commands.literal("notify")
                 .then(Commands.literal("on")
                     .executes(ctx -> {

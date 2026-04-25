@@ -20,11 +20,13 @@ public class BloodMoonManager {
     private final AnnouncePlugin plugin;
 
     private long intervalMs = 75 * 60 * 1000L;
-    private long durationMs = 15 * 60 * 1000L;
+    private long durationMs = 450_000L; // 7.5 minutes
     private boolean notificationsEnabled = true;
     private boolean forceNotificationsThisCycle = false;
+    private boolean disabled = false;
 
     private boolean bloodMoonActive = false;
+    private boolean waitingForNight = false;
     private long nextStartMs;
     private long endMs;
 
@@ -66,14 +68,31 @@ public class BloodMoonManager {
     }
 
     private void tick() {
+        if (disabled) return;
         if (bloodMoonActive) {
             if (System.currentTimeMillis() >= endMs) endBloodMoon();
             return;
         }
 
+        // Interval elapsed — now waiting for nightfall before starting
+        if (waitingForNight) {
+            if (isNighttime()) {
+                waitingForNight = false;
+                beginBloodMoon();
+            }
+            return;
+        }
+
         long msLeft = nextStartMs - System.currentTimeMillis();
         if (msLeft <= 0) {
-            beginBloodMoon();
+            waitingForNight = true;
+            if (isNighttime()) { // already night — start immediately
+                waitingForNight = false;
+                beginBloodMoon();
+            } else {
+                Bukkit.broadcast(Component.text(
+                    "[!] A Blood Moon approaches... waiting for nightfall.", NamedTextColor.DARK_RED));
+            }
             return;
         }
 
@@ -90,6 +109,16 @@ public class BloodMoonManager {
             notified1 = true;
             broadcastWarning(1);
         }
+    }
+
+    private boolean isNighttime() {
+        for (World world : Bukkit.getWorlds()) {
+            if (world.getEnvironment() == World.Environment.NORMAL) {
+                long time = world.getTime();
+                return time >= 12542; // sun below horizon — night begins
+            }
+        }
+        return false;
     }
 
     // ── Lifecycle ─────────────────────────────────────────────────────────────
@@ -112,6 +141,7 @@ public class BloodMoonManager {
     }
 
     public void forceEnd() {
+        waitingForNight = false;
         if (bloodMoonActive) {
             endBloodMoon();
         } else {
@@ -121,6 +151,7 @@ public class BloodMoonManager {
 
     // Used by /bloodmoon reset — silently ends any active blood moon and resets to full interval
     public void reset() {
+        waitingForNight = false;
         if (bloodMoonActive) {
             bloodMoonActive = false;
             cleanupBloodMoonMobs();
@@ -129,6 +160,8 @@ public class BloodMoonManager {
         }
         scheduleNext();
     }
+
+    public boolean isWaitingForNight() { return waitingForNight; }
 
     public void beginDelay() {
         nextStartMs = System.currentTimeMillis() + 10 * 60 * 1000L;
@@ -148,7 +181,7 @@ public class BloodMoonManager {
             int ticks = (int) world.getTicksPerMonsterSpawns();
             originalMonsterLimit.put(world, limit);
             originalMonsterTicks.put(world, ticks);
-            world.setMonsterSpawnLimit(limit * 2);
+            world.setMonsterSpawnLimit((int)(limit * 2.5));
             world.setTicksPerMonsterSpawns(Math.max(1, ticks / 2));
         }
     }
@@ -250,8 +283,22 @@ public class BloodMoonManager {
     // ── Public API ────────────────────────────────────────────────────────────
 
     public boolean isBloodMoonActive()          { return bloodMoonActive; }
+    public boolean isDisabled()                 { return disabled; }
     public boolean isNotificationsEnabled()     { return notificationsEnabled; }
     public void setNotificationsEnabled(boolean v) { notificationsEnabled = v; }
+
+    public void setDisabled(boolean v) {
+        disabled = v;
+        if (v) {
+            waitingForNight = false;
+            if (bloodMoonActive) {
+                bloodMoonActive = false;
+                cleanupBloodMoonMobs();
+                restoreSpawnRates();
+                stopKillBoard();
+            }
+        }
+    }
 
     public void addDelay(int minutes) {
         nextStartMs += (long) minutes * 60 * 1000;
