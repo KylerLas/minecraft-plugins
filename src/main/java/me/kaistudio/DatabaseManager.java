@@ -16,12 +16,14 @@ public class DatabaseManager {
     private MongoClient client;
     private MongoCollection<Document> fines;
     private MongoCollection<Document> players;
+    private MongoCollection<Document> config;
 
     public DatabaseManager(String connectionString, String database, String finesCollection) {
         client = MongoClients.create(connectionString);
         MongoDatabase db = client.getDatabase(database);
         fines = db.getCollection(finesCollection);
         players = db.getCollection("minecraft_players");
+        config = db.getCollection("minecraft_config");
     }
 
     public void logFine(String playerName, String playerUuid, String reason, int amount) {
@@ -84,6 +86,77 @@ public class DatabaseManager {
             Filters.eq("playerUuid", playerUuid),
             Updates.inc("transactionsReceived", 1)
         );
+    }
+
+    // ── Insurance config ─────────────────────────────────────────────────────
+
+    public Document getInsuranceConfig() {
+        return config.find(Filters.eq("_id", "insurance_rates")).first();
+    }
+
+    public void setInsuranceEnabled(boolean enabled) {
+        config.updateOne(Filters.eq("_id", "insurance_rates"),
+            Updates.set("insuranceEnabled", enabled),
+            new UpdateOptions().upsert(true));
+    }
+
+    public void setBaseDeathPenalty(double rate) {
+        config.updateOne(Filters.eq("_id", "insurance_rates"),
+            Updates.set("baseDeathPenalty", rate),
+            new UpdateOptions().upsert(true));
+    }
+
+    public void setTierRates(String tier, double deathRate, double dailyCostRate) {
+        config.updateOne(Filters.eq("_id", "insurance_rates"),
+            Updates.combine(
+                Updates.set(tier + ".deathRate", deathRate),
+                Updates.set(tier + ".dailyCostRate", dailyCostRate)
+            ),
+            new UpdateOptions().upsert(true));
+    }
+
+    // ── Player insurance ──────────────────────────────────────────────────────
+
+    public Document getPlayerInsurance(String playerUuid) {
+        return players.find(Filters.eq("playerUuid", playerUuid)).first();
+    }
+
+    public void setPlayerInsuranceTier(String playerUuid, String tier, String pendingTier,
+                                       java.util.Date signupTime, java.util.Date lastCharged, java.util.Date nextPayment) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid),
+            Updates.combine(
+                Updates.set("insuranceTier", tier),
+                Updates.set("insurancePendingTier", pendingTier),
+                Updates.set("insuranceSignupTime", signupTime),
+                Updates.set("insuranceLastCharged", lastCharged),
+                Updates.set("insuranceNextPaymentTime", nextPayment)
+            ));
+    }
+
+    public void setInsurancePendingTier(String playerUuid, String pendingTier) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid),
+            Updates.set("insurancePendingTier", pendingTier));
+    }
+
+    public void updateInsuranceBilling(String playerUuid, String tier,
+                                       java.util.Date lastCharged, java.util.Date nextPayment) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid),
+            Updates.combine(
+                Updates.set("insuranceTier", tier),
+                Updates.set("insurancePendingTier", null),
+                Updates.set("insuranceLastCharged", lastCharged),
+                Updates.set("insuranceNextPaymentTime", nextPayment)
+            ));
+    }
+
+    public void clearPlayerInsurance(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid),
+            Updates.combine(
+                Updates.set("insuranceTier", null),
+                Updates.set("insurancePendingTier", null),
+                Updates.set("insuranceLastCharged", null),
+                Updates.set("insuranceNextPaymentTime", null)
+            ));
     }
 
     public void close() {

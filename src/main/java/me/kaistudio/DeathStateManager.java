@@ -127,9 +127,8 @@ public class DeathStateManager {
         return playerLoc.clone().add(0, 2.1, 0);
     }
 
-    // Default 50% — will map to insuranceTier when that feature lands
     public double getDeathTaxRate(UUID playerUuid) {
-        return 0.50;
+        return plugin.getInsuranceManager().getDeathTaxRate(playerUuid);
     }
 
     public int getTotalNuggets(Player player) {

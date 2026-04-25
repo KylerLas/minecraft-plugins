@@ -87,6 +87,39 @@
 - [ ] Die with 20 gold (2 blocks + 2 ingots) — both blocks broken, 8 gold refunded to inventory, 2 ingots untouched
 - [ ] Die with gold spread across blocks + chests + inventory — blocks drained first, then chests, then inventory; stops as soon as debt covered
 
+## Insurance
+
+### Subscribing
+- [ ] `/insurance gold` while uninsured — shows cost breakdown with [Accept] [Decline] buttons
+- [ ] Click [Accept] — charged immediately, "Gold tier activated" message, tier shows in `/insurance status`
+- [ ] Click [Decline] — nothing happens, no tier set
+- [ ] `/insurance gold` while already on Gold — "You are already on Gold insurance"
+- [ ] `/insurance status` — shows tier, death penalty %, next charge amount, minutes until next charge
+
+### Billing cycle (20 minutes)
+- [ ] Wait 20 minutes while insured — gold deducted from inventory, "charged X gold" message
+- [ ] Have no gold in inventory at billing time — charged 0, tier stays active
+- [ ] Disconnect and reconnect after 20 minutes — charged immediately on login (overdue catch-up)
+
+### Tier changes
+- [ ] `/insurance silver` while on Gold (downgrade) — shows "downgrade in X minutes" with [Accept]
+- [ ] Accept downgrade — pending tier shown in `/insurance status`; at next billing cycle tier switches and new rate charged
+- [ ] `/insurance gold` while on Bronze (upgrade) — shows "upgrade in X minutes" with [Accept]
+- [ ] Accept upgrade — applies at next billing cycle
+- [ ] `/insurance cancel` — "will cancel in X minutes"; tier clears at next billing cycle
+
+### Admin commands
+- [ ] `/insurance set gold 5 1.5` — updates Gold tier rates, confirmed in chat
+- [ ] `/deathpenalty 40` — updates base penalty to 40%, confirmed in chat
+- [ ] `/insurance off` — broadcasts "Insurance Inc is shutting down for 24 hours"; players with Gold tier now take base death penalty on death
+- [ ] `/insurance on` — insurance resumes; OP gets confirmation message
+- [ ] Non-OP tries `/insurance set` — no permission error
+
+### Death penalty with insurance
+- [ ] Die with Gold tier active — death penalty is 8% not 50%
+- [ ] Die with no insurance and base penalty at 50% — `/pay death` takes 50%
+- [ ] `/insurance off` then die with Gold tier — takes base penalty (50%)
+
 ## Misc
 - [ ] Kill a chicken — Court Officer spawns, fine note drops, fine logged to `minecraft_fines`
 - [ ] Player join — profile upserted in `minecraft_players`, pending requests announced in chat

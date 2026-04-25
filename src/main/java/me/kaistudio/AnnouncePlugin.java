@@ -22,6 +22,7 @@ public class AnnouncePlugin extends JavaPlugin {
     private RequestManager requestManager;
     private RequestCommand requestCommand;
     private DeathStateManager deathStateManager;
+    private InsuranceManager insuranceManager;
     private MarketManager marketManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
@@ -29,6 +30,7 @@ public class AnnouncePlugin extends JavaPlugin {
     public RequestManager getRequestManager() { return requestManager; }
     public RequestCommand getRequestCommand() { return requestCommand; }
     public DeathStateManager getDeathStateManager() { return deathStateManager; }
+    public InsuranceManager getInsuranceManager() { return insuranceManager; }
     public MarketManager getMarketManager() { return marketManager; }
 
     private static final List<String> MESSAGES = List.of(
@@ -57,6 +59,7 @@ public class AnnouncePlugin extends JavaPlugin {
         requestManager = new RequestManager();
         requestCommand = new RequestCommand(this);
         deathStateManager = new DeathStateManager(this);
+        insuranceManager = new InsuranceManager(this);
         marketManager = new MarketManager(this);
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
@@ -66,6 +69,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new GoldDropListener(), this);
         Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
         Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new InsuranceListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MarketTellerListener(this), this);
 
         // Gold scanner — runs every 10 seconds (200 ticks)
@@ -144,6 +148,8 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(requestCommand.buildRequest(), "Request gold from another player");
             event.registrar().register(requestCommand.buildRequests(), "View and manage your gold requests");
             event.registrar().register(new GoldScoreCommand().build(), "View the gold leaderboard");
+            event.registrar().register(new InsuranceCommand(this).build(), "Manage your Insurance Inc policy");
+            event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
             event.registrar().register(
                 Commands.literal("spawnteller")

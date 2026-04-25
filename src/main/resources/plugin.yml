@@ -8,3 +8,6 @@ permissions:
   kai.announce:
     description: Allows use of /announce
     default: op
+  kai.insurance:
+    description: Allows use of /insurance set, /insurance on|off, and /deathpenalty
+    default: op

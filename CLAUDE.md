@@ -53,6 +53,12 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 | `/requests received`         | anyone                   | View incoming requests with [Accept] / [Decline] buttons |
 | `/goldscore`                 | anyone                   | Show full sorted gold leaderboard in chat                |
 | `/pay death`                 | anyone (dead only)       | Pay the death penalty to exit ghost state                |
+| `/insurance bronze\|silver\|gold` | anyone              | Subscribe to or change insurance tier                    |
+| `/insurance cancel`          | anyone                   | Cancel insurance at end of current cycle                 |
+| `/insurance status`          | anyone                   | Show current tier, death penalty %, next charge          |
+| `/insurance set <tier> <death%> <daily%>` | `kai.insurance` | Update tier rates                           |
+| `/insurance on\|off`         | `kai.insurance`          | Enable/disable insurance for all players                 |
+| `/deathpenalty <percentage>` | `kai.insurance`          | Adjust the base (no insurance) death penalty             |
 
 ---
 
@@ -68,8 +74,8 @@ The deploy script builds the JAR via a temporary Maven Docker container, copies 
 - [x] Gold drop ownership — dropped gold (nugget/ingot/block/ore) can only be picked up by the dropper
 - [x] Gold storage restriction — gold items cannot be placed into shulker boxes, hoppers, droppers, or dispensers
 - [x] Barrel and ender chest gold tracking — barrel contents + player's ender chest scanned every 10s
-- [x] Ghost death state — on death, player enters ghost mode with floating skull; `/pay death` charges 50% of total gold to revive
-- [ ] Insurance tier — `/insurance` command + tier-based death penalty rate (`minecraft_players`)
+- [x] Ghost death state — on death, player enters ghost mode with floating skull; `/pay death` charges death penalty % of total gold to revive
+- [x] Insurance tiers — Bronze/Silver/Gold policies with recurring 20-minute billing; `/insurance`, `/deathpenalty`, `/insurance on|off`
 
 ---
 
@@ -82,6 +88,18 @@ When a player dies they enter ghost mode after respawning:
 - Other players can see the skull but cannot attack or interact with the ghost
 - Ghost state persists through disconnects — skull respawns on next login
 - Orphan skull ArmorStands from previous server runs are cleaned up on plugin enable via a `PersistentDataContainer` tag (`myfirstplugin:death_skull`)
+
+### Insurance tiers
+
+Players subscribe via `/insurance bronze|silver|gold`. Default rates (adjustable via `/insurance set`):
+
+| Tier | Death Penalty | Daily Cost (% of total gold) |
+|---|:---:|:---:|
+| Bronze | 35% | 0.5% |
+| Silver | 20% | 1% |
+| Gold | 8% | 2% |
+
+Billing fires every 20 real-world minutes. Cost = % of total gold, taken from inventory. If a tier change is pending it applies at the next billing cycle. Config persists in `minecraft_config` collection (`_id = "insurance_rates"`). Dashboard reads rates from `GET /api/insurance-config`.
 
 ### Revival — `/pay death`
 
