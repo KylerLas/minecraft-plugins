@@ -199,7 +199,7 @@ public class InsuranceCommand {
         if (!on) {
             Bukkit.broadcast(Component.text("India Insures You is suspending operations for 24 hours. All deaths fully taxed in the interim.", NamedTextColor.GOLD));
         } else {
-            ctx.getSource().getSender().sendMessage(Component.text("India Insures You has resumed operations. Your assets are once again... protected.", NamedTextColor.GREEN));
+            Bukkit.broadcast(Component.text("India Insures You has resumed operations. Your assets are once again... protected.", NamedTextColor.GREEN));
         }
         return 1;
     }
