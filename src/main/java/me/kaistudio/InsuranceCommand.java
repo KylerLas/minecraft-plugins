@@ -51,13 +51,13 @@ public class InsuranceCommand {
         InsuranceManager im = plugin.getInsuranceManager();
 
         if (!im.isEnabled()) {
-            sender.sendMessage(Component.text("Insurance Inc is currently offline.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("India Insures You is temporarily closed for restructuring. Deaths uninsured in the meantime.", NamedTextColor.RED));
             return 0;
         }
 
         String currentTier = im.getPlayerTier(sender.getUniqueId());
         if (tier.equals(currentTier)) {
-            sender.sendMessage(Component.text("You are already on " + InsuranceManager.cap(tier) + " insurance.", NamedTextColor.YELLOW));
+            sender.sendMessage(Component.text("Our records show you are already enrolled in our " + InsuranceManager.cap(tier) + " Plan. Your continued loyalty is noted.", NamedTextColor.YELLOW));
             return 0;
         }
 
@@ -65,22 +65,22 @@ public class InsuranceCommand {
         int costNuggets = (int) Math.floor(totalNuggets * im.getDailyCostRate(tier));
         int deathPct = (int) Math.round(im.getDeathRate(tier) * 100);
 
-        Component acceptBtn = Component.text("[Accept]", NamedTextColor.GREEN)
+        Component acceptBtn = Component.text("[Enroll]", NamedTextColor.GREEN)
             .clickEvent(ClickEvent.runCommand("/insurance confirm " + tier));
         Component declineBtn = Component.text("[Decline]", NamedTextColor.RED)
             .clickEvent(ClickEvent.runCommand("/insurance decline"));
 
         if (currentTier == null) {
             sender.sendMessage(
-                Component.text("Insurance Inc: " + InsuranceManager.cap(tier) + " (" + deathPct + "% death penalty) — "
+                Component.text("India Insures You — " + InsuranceManager.cap(tier) + " Plan: only " + deathPct + "% surrendered on death. A bargain, frankly. Cost: "
                     + GoldUtil.format(costNuggets) + "/cycle. Charged immediately. ")
                     .append(acceptBtn).append(Component.text(" ")).append(declineBtn));
         } else {
             long mins = im.getMinutesUntilNextPayment(sender.getUniqueId());
-            String action = im.isTierHigher(tier, currentTier) ? "Upgrade" : "Downgrade";
+            String action = im.isTierHigher(tier, currentTier) ? "Transitioning up" : "Transitioning down";
             sender.sendMessage(
-                Component.text("Insurance Inc: " + action + " to " + InsuranceManager.cap(tier) + " (" + deathPct
-                    + "% death penalty) in ~" + mins + " min — new cost " + GoldUtil.format(costNuggets) + "/cycle. ")
+                Component.text("India Insures You — " + action + " to " + InsuranceManager.cap(tier) + " Plan (" + deathPct
+                    + "% death extraction) in ~" + mins + " min. New extraction rate: " + GoldUtil.format(costNuggets) + "/cycle. ")
                     .append(acceptBtn).append(Component.text(" ")).append(declineBtn));
         }
 
@@ -95,7 +95,7 @@ public class InsuranceCommand {
         String tier = StringArgumentType.getString(ctx, "tier");
         String pending = im.consumePendingConfirm(sender.getUniqueId());
         if (pending == null || !pending.equals(tier)) {
-            sender.sendMessage(Component.text("No pending insurance confirmation.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("We find no pending enrollment on file. Please try again.", NamedTextColor.RED));
             return 0;
         }
 
@@ -107,8 +107,8 @@ public class InsuranceCommand {
             long mins = im.getMinutesUntilNextPayment(sender.getUniqueId());
             String action = im.isTierHigher(tier, currentTier) ? "upgrade" : "downgrade";
             sender.sendMessage(Component.text(
-                "Insurance Inc: Your " + InsuranceManager.cap(currentTier) + " insurance will " + action
-                    + " to " + InsuranceManager.cap(tier) + " in ~" + mins + " minute(s).",
+                "India Insures You: Your " + InsuranceManager.cap(currentTier) + " Plan will " + action
+                    + " to " + InsuranceManager.cap(tier) + " in ~" + mins + " minute(s). We look forward to serving you.",
                 NamedTextColor.YELLOW));
         }
         return 1;
@@ -117,7 +117,7 @@ public class InsuranceCommand {
     private int handleDecline(CommandContext<CommandSourceStack> ctx) {
         if (!(ctx.getSource().getSender() instanceof Player sender)) return 0;
         plugin.getInsuranceManager().clearPendingConfirm(sender.getUniqueId());
-        sender.sendMessage(Component.text("Insurance Inc: Request declined.", NamedTextColor.GRAY));
+        sender.sendMessage(Component.text("Your loss. Literally.", NamedTextColor.GRAY));
         return 1;
     }
 
@@ -127,14 +127,14 @@ public class InsuranceCommand {
 
         String currentTier = im.getPlayerTier(sender.getUniqueId());
         if (currentTier == null) {
-            sender.sendMessage(Component.text("You don't have active insurance.", NamedTextColor.RED));
+            sender.sendMessage(Component.text("You are not currently enrolled. Full extraction applies upon death. Consider this a warning.", NamedTextColor.RED));
             return 0;
         }
 
         im.setPendingTier(sender, "cancel");
         long mins = im.getMinutesUntilNextPayment(sender.getUniqueId());
         sender.sendMessage(Component.text(
-            "Insurance Inc: Your " + InsuranceManager.cap(currentTier) + " insurance will cancel in ~" + mins + " minute(s).",
+            "India Insures You: Your " + InsuranceManager.cap(currentTier) + " Plan will be terminated in ~" + mins + " minute(s). We're sorry to see you go.",
             NamedTextColor.YELLOW));
         return 1;
     }
@@ -149,7 +149,7 @@ public class InsuranceCommand {
         if (tier == null) {
             int basePct = (int) Math.round(im.getBaseDeathPenalty() * 100);
             sender.sendMessage(Component.text(
-                "Insurance Inc: No active insurance. Death penalty: " + basePct + "%.", NamedTextColor.GRAY));
+                "India Insures You: No active plan. " + basePct + "% extracted upon death. We suggest reconsidering.", NamedTextColor.GRAY));
             return 1;
         }
 
@@ -159,14 +159,14 @@ public class InsuranceCommand {
         long mins = im.getMinutesUntilNextPayment(sender.getUniqueId());
 
         sender.sendMessage(Component.text(
-            "Insurance Inc: " + InsuranceManager.cap(tier) + " — " + deathPct + "% death penalty. "
-                + "Next charge: " + GoldUtil.format(nextCost) + " in ~" + mins + " min.",
+            "India Insures You — " + InsuranceManager.cap(tier) + " Plan | " + deathPct + "% death extraction | "
+                + "Next invoice: " + GoldUtil.format(nextCost) + " in ~" + mins + " min.",
             NamedTextColor.GRAY));
 
         if (pending != null) {
-            String pendingDisplay = "cancel".equals(pending) ? "cancellation" : InsuranceManager.cap(pending);
+            String pendingDisplay = "cancel".equals(pending) ? "termination" : InsuranceManager.cap(pending) + " Plan";
             sender.sendMessage(Component.text(
-                "Insurance Inc: Pending change — " + pendingDisplay + " in ~" + mins + " min.", NamedTextColor.YELLOW));
+                "Pending: " + pendingDisplay + " in ~" + mins + " min. We'll miss you. Your gold especially.", NamedTextColor.YELLOW));
         }
         return 1;
     }
@@ -185,8 +185,7 @@ public class InsuranceCommand {
         double dailyPct = DoubleArgumentType.getDouble(ctx, "dailycost") / 100.0;
         plugin.getInsuranceManager().setTierRates(tier, deathPct, dailyPct);
         ctx.getSource().getSender().sendMessage(Component.text(
-            "Updated " + InsuranceManager.cap(tier) + ": " + (int) Math.round(deathPct * 100)
-                + "% death penalty, " + (dailyPct * 100) + "% daily cost.",
+            InsuranceManager.cap(tier) + " Plan rates updated. The board is pleased.",
             NamedTextColor.GREEN));
         return 1;
     }
@@ -198,9 +197,9 @@ public class InsuranceCommand {
         }
         plugin.getInsuranceManager().setEnabled(on);
         if (!on) {
-            Bukkit.broadcast(Component.text("Insurance Inc is shutting down for 24 hours", NamedTextColor.GOLD));
+            Bukkit.broadcast(Component.text("India Insures You is suspending operations for 24 hours. All deaths fully taxed in the interim.", NamedTextColor.GOLD));
         } else {
-            ctx.getSource().getSender().sendMessage(Component.text("Insurance Inc is now online.", NamedTextColor.GREEN));
+            ctx.getSource().getSender().sendMessage(Component.text("India Insures You has resumed operations. Your assets are once again... protected.", NamedTextColor.GREEN));
         }
         return 1;
     }

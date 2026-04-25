@@ -93,7 +93,7 @@ public class InsuranceManager {
         state.nextPaymentTime = new Date(System.currentTimeMillis() + BILLING_INTERVAL_MS);
 
         player.sendMessage(Component.text(
-            "Insurance Inc: " + cap(state.tier) + " tier charged " + GoldUtil.format(actualCharge) + ".",
+            "India Insures You: " + cap(state.tier) + " Plan — Invoice: " + GoldUtil.format(actualCharge) + " collected. Thank you for your compliance.",
             NamedTextColor.GRAY));
 
         final String tier = state.tier;
@@ -111,7 +111,7 @@ public class InsuranceManager {
         if ("cancel".equals(state.pendingTier)) {
             state.tier = null;
             state.pendingTier = null;
-            player.sendMessage(Component.text("Insurance Inc: Your insurance has been cancelled.", NamedTextColor.YELLOW));
+            player.sendMessage(Component.text("India Insures You: Your plan has been terminated. We wish you the best. We mean that.", NamedTextColor.YELLOW));
             Bukkit.getScheduler().runTaskAsynchronously(plugin, () ->
                 plugin.getDatabaseManager().clearPlayerInsurance(player.getUniqueId().toString()));
             return;
@@ -129,7 +129,7 @@ public class InsuranceManager {
         if (actualCharge > 0) GoldUtil.removeGold(player, actualCharge);
 
         player.sendMessage(Component.text(
-            "Insurance Inc: Tier changed from " + cap(oldTier) + " to " + cap(state.tier) + ". Charged " + GoldUtil.format(actualCharge) + ".",
+            "India Insures You: Plan amended from " + cap(oldTier) + " to " + cap(state.tier) + ". First invoice collected: " + GoldUtil.format(actualCharge) + ".",
             NamedTextColor.GREEN));
 
         final String newTier = state.tier;
@@ -187,7 +187,7 @@ public class InsuranceManager {
         state.nextPaymentTime = next;
 
         player.sendMessage(Component.text(
-            "Insurance Inc: " + cap(tier) + " tier activated! Charged " + GoldUtil.format(actualCharge) + ". Next charge in 20 minutes.",
+            "India Insures You: " + cap(tier) + " Plan activated. " + GoldUtil.format(actualCharge) + " collected immediately. Next collection in 20 minutes. Welcome aboard.",
             NamedTextColor.GREEN));
 
         final Date signupTime = now;
