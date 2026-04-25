@@ -242,6 +242,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new InsuranceCommand(this).build(), "Manage your Insurance Inc policy");
             event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
             event.registrar().register(new StatisticsCommand(this).build(), "View and manage server statistics");
+            event.registrar().register(new FinesCommand(this).build(), "Manage server fines");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
             event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
             event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");

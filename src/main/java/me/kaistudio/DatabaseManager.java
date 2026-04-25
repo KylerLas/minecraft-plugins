@@ -88,6 +88,12 @@ public class DatabaseManager {
         );
     }
 
+    // ── Fines ─────────────────────────────────────────────────────────────────
+
+    public void deleteAllFines() {
+        fines.deleteMany(new org.bson.Document());
+    }
+
     // ── Statistics ────────────────────────────────────────────────────────────
 
     public void incrementMobKills(String playerUuid) {
