@@ -26,6 +26,7 @@ public class AnnouncePlugin extends JavaPlugin {
     private InsuranceManager insuranceManager;
     private GoldDropListener goldDropListener;
     private MarketManager marketManager;
+    private PurgeManager purgeManager;
 
     public DatabaseManager getDatabaseManager() { return databaseManager; }
     public ChestTracker getChestTracker() { return chestTracker; }
@@ -35,6 +36,7 @@ public class AnnouncePlugin extends JavaPlugin {
     public InsuranceManager getInsuranceManager() { return insuranceManager; }
     public GoldDropListener getGoldDropListener() { return goldDropListener; }
     public MarketManager getMarketManager() { return marketManager; }
+    public PurgeManager getPurgeManager() { return purgeManager; }
 
     private static final List<String> MESSAGES = List.of(
         "has a small penis!",
@@ -64,6 +66,7 @@ public class AnnouncePlugin extends JavaPlugin {
         deathStateManager = new DeathStateManager(this);
         insuranceManager = new InsuranceManager(this);
         marketManager = new MarketManager(this);
+        purgeManager = new PurgeManager(this);
 
         Bukkit.getPluginManager().registerEvents(new ChickenDeathListener(this), this);
         Bukkit.getPluginManager().registerEvents(new PlayerDeathListener(this), this);
@@ -87,6 +90,15 @@ public class AnnouncePlugin extends JavaPlugin {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (deathStateManager.isDead(player.getUniqueId())) {
                     player.sendActionBar(Component.text("☠ You are in Purgatory — type /pay death to revive", NamedTextColor.RED));
+                    continue;
+                }
+
+                // During purge: show countdown for all non-ghost players
+                if (purgeManager.isPurgeActive()) {
+                    int sec = purgeManager.getRemainingPurgeSeconds();
+                    player.sendActionBar(Component.text(
+                        String.format("☠ PURGE — %d:%02d remaining  |  2x MARKET", sec / 60, sec % 60),
+                        NamedTextColor.RED));
                     continue;
                 }
 
@@ -182,6 +194,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
             event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
+            event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");
             event.registrar().register(
                 Commands.literal("spawnteller")
                     .executes(ctx -> {

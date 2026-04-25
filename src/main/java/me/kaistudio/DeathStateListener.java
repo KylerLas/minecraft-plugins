@@ -46,8 +46,8 @@ public class DeathStateListener implements Listener {
             plugin.getGoldDropListener().track(item, player.getUniqueId());
         }
 
-        // Purgatory only applies to non-PvP deaths
-        if (!pvpDeath) {
+        // Purgatory applies to PvE deaths always, and to PvP deaths during the Purge event
+        if (!pvpDeath || plugin.getPurgeManager().isPurgeActive()) {
             plugin.getDeathStateManager().markPendingDeath(player.getUniqueId());
         }
     }

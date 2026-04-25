@@ -46,6 +46,9 @@ public class MarketManager {
     private long recoveryIntervalTicks = 3600L;
     private BukkitTask recoveryTask = null;
 
+    private boolean purgeActive = false;
+    private final Map<Material, Double> purgeSnapshot = new EnumMap<>(Material.class);
+
     public MarketManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
         stateFile = new File(plugin.getDataFolder(), "market_state.yml");
@@ -131,6 +134,7 @@ public class MarketManager {
     }
 
     public double getMultiplier(Material mat) {
+        if (purgeActive) return 2.0;
         return multipliers.getOrDefault(mat, 1.0);
     }
 
@@ -160,6 +164,7 @@ public class MarketManager {
     }
 
     private void applyDecay(Material mat, UUID sellerUuid, int amount) {
+        if (purgeActive) return;
         recentSellers.computeIfAbsent(mat, k -> new HashMap<>())
                      .put(sellerUuid, System.currentTimeMillis());
 
@@ -185,6 +190,7 @@ public class MarketManager {
     }
 
     public void recoverPrices() {
+        if (purgeActive) return;
         boolean changed = false;
         for (Material mat : prices.keySet()) {
             double current = multipliers.getOrDefault(mat, 1.0);
@@ -208,6 +214,20 @@ public class MarketManager {
         teller.setRecipes(java.util.Collections.emptyList());
         teller.getPersistentDataContainer().set(TELLER_TAG, PersistentDataType.BYTE, (byte) 1);
         tellerEntityUuids.add(teller.getUniqueId());
+    }
+
+    public void enterPurge() {
+        purgeSnapshot.clear();
+        purgeSnapshot.putAll(multipliers);
+        purgeActive = true;
+    }
+
+    public void exitPurge() {
+        purgeActive = false;
+        multipliers.clear();
+        multipliers.putAll(purgeSnapshot);
+        purgeSnapshot.clear();
+        saveState();
     }
 
     public void startRecoveryTask() {
