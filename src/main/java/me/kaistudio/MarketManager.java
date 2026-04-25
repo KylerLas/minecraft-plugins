@@ -194,10 +194,12 @@ public class MarketManager {
         Villager teller = (Villager) player.getWorld().spawnEntity(player.getLocation(), EntityType.VILLAGER);
         teller.setAI(false);
         teller.setInvulnerable(true);
+        teller.setSilent(true);
         teller.setCustomNameVisible(true);
         teller.customName(Component.text("Bank Teller", NamedTextColor.GOLD));
         teller.setProfession(Villager.Profession.ARMORER);
         teller.setVillagerType(Villager.Type.PLAINS);
+        teller.setRecipes(java.util.Collections.emptyList());
         teller.getPersistentDataContainer().set(TELLER_TAG, PersistentDataType.BYTE, (byte) 1);
         tellerEntityUuids.add(teller.getUniqueId());
     }
