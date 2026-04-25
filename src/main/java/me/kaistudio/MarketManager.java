@@ -43,7 +43,7 @@ public class MarketManager {
 
     private double depercentageMultiplier = 1.0;
     private double recoveryStep = RECOVERY_PER_STEP;
-    private long recoveryIntervalTicks = 3600L;
+    private long recoveryIntervalTicks = 18000L;
     private BukkitTask recoveryTask = null;
 
     private boolean purgeActive = false;
