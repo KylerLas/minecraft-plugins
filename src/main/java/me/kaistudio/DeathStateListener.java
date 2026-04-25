@@ -28,11 +28,11 @@ public class DeathStateListener implements Listener {
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent event) {
         if (plugin.getDeathStateManager().isDead(event.getPlayer().getUniqueId())) return;
-        plugin.getDeathStateManager().markPendingDeath(event.getPlayer().getUniqueId());
 
-        // Intercept gold from the death drops, spawn them manually so they're tracked
-        // (death drops fire through PlayerDeathEvent, not PlayerDropItemEvent)
         Player player = event.getPlayer();
+        boolean pvpDeath = player.getKiller() != null;
+
+        // Always track gold drops as owned — only the victim can pick them up regardless of death type
         List<ItemStack> goldDrops = new ArrayList<>();
         event.getDrops().removeIf(stack -> {
             if (stack != null && GoldUtil.isTrackedGold(stack.getType())) {
@@ -44,6 +44,11 @@ public class DeathStateListener implements Listener {
         for (ItemStack gold : goldDrops) {
             Item item = player.getWorld().dropItemNaturally(player.getLocation(), gold);
             plugin.getGoldDropListener().track(item, player.getUniqueId());
+        }
+
+        // Purgatory only applies to non-PvP deaths
+        if (!pvpDeath) {
+            plugin.getDeathStateManager().markPendingDeath(player.getUniqueId());
         }
     }
 
