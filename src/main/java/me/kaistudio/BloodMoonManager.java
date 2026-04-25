@@ -119,6 +119,17 @@ public class BloodMoonManager {
         }
     }
 
+    // Used by /bloodmoon reset — silently ends any active blood moon and resets to full interval
+    public void reset() {
+        if (bloodMoonActive) {
+            bloodMoonActive = false;
+            cleanupBloodMoonMobs();
+            restoreSpawnRates();
+            stopKillBoard();
+        }
+        scheduleNext();
+    }
+
     public void beginDelay() {
         nextStartMs = System.currentTimeMillis() + 10 * 60 * 1000L;
         forceNotificationsThisCycle = true;

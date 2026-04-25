@@ -92,6 +92,15 @@ public class PurgeManager {
         scheduleNext();
     }
 
+    // Used by /purge reset — silently ends any active purge and resets to full interval
+    public void reset() {
+        if (purgeActive) {
+            purgeActive = false;
+            plugin.getMarketManager().exitPurge();
+        }
+        scheduleNext();
+    }
+
     // Used by /purge end — works whether a purge is active or just counting down
     public void forceEnd() {
         if (purgeActive) {

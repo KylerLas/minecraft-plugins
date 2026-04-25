@@ -87,6 +87,17 @@ public class PurgeCommand {
                             NamedTextColor.YELLOW));
                         return 1;
                     })))
+            .then(Commands.literal("reset")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    PurgeManager pm = plugin.getPurgeManager();
+                    pm.reset();
+                    org.bukkit.Bukkit.broadcast(Component.text(
+                        "Purge timer reset. Next purge in " + formatTime(pm.getSecondsToNextPurge()) + ".",
+                        NamedTextColor.YELLOW));
+                    return 1;
+                }))
             .then(Commands.literal("notify")
                 .then(Commands.literal("on")
                     .executes(ctx -> {

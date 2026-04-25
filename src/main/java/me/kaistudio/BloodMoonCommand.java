@@ -87,6 +87,17 @@ public class BloodMoonCommand {
                             NamedTextColor.DARK_RED));
                         return 1;
                     })))
+            .then(Commands.literal("reset")
+                .executes(ctx -> {
+                    CommandSender sender = ctx.getSource().getSender();
+                    if (!sender.isOp()) { noPerms(sender); return 0; }
+                    BloodMoonManager bm = plugin.getBloodMoonManager();
+                    bm.reset();
+                    org.bukkit.Bukkit.broadcast(Component.text(
+                        "Blood moon timer reset. Next blood moon in " + formatTime(bm.getSecondsToNext()) + ".",
+                        NamedTextColor.DARK_RED));
+                    return 1;
+                }))
             .then(Commands.literal("notify")
                 .then(Commands.literal("on")
                     .executes(ctx -> {
