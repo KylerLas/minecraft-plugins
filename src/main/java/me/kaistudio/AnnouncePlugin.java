@@ -75,8 +75,8 @@ public class AnnouncePlugin extends JavaPlugin {
         // Gold scanner — runs every 10 seconds (200 ticks)
         Bukkit.getScheduler().runTaskTimer(this, new GoldScanner(this), 200L, 200L);
 
-        // Market price recovery — nudges depressed prices up by 1% every 10 minutes (12000 ticks)
-        Bukkit.getScheduler().runTaskTimer(this, () -> marketManager.recoverPrices(), 12000L, 12000L);
+        // Market price recovery — +2% every 3 minutes (3600 ticks), tuned for short sessions
+        Bukkit.getScheduler().runTaskTimer(this, () -> marketManager.recoverPrices(), 3600L, 3600L);
 
         // Action bar — purgatory reminder for ghosts; chest ownership for everyone else
         Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -151,6 +151,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new InsuranceCommand(this).build(), "Manage your Insurance Inc policy");
             event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
+            event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
             event.registrar().register(
                 Commands.literal("spawnteller")
                     .executes(ctx -> {

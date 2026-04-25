@@ -23,9 +23,8 @@ public class MarketManager {
     static final NamespacedKey TELLER_TAG = new NamespacedKey("myfirstplugin", "bank_teller");
 
     private static final double FLOOR             = 0.30;
-    private static final double DECAY_PER_STACK   = 0.03;
-    private static final double RECOVERY_PER_STEP = 0.01;
-    private static final int    SELLER_THRESHOLD  = 2;
+    private static final double DECAY_PER_STACK   = 0.05; // -5% per stack sold
+    private static final double RECOVERY_PER_STEP = 0.02; // +2% every 3 minutes
     private static final long   WINDOW_MS         = 3_600_000L;
 
     // Canonical price bundle: sell qty items → receive nuggets gold
@@ -141,17 +140,28 @@ public class MarketManager {
     }
 
     private void applyDecay(Material mat, UUID sellerUuid, int amount) {
-        Map<UUID, Long> sellers = recentSellers.computeIfAbsent(mat, k -> new HashMap<>());
-        sellers.put(sellerUuid, System.currentTimeMillis());
-
-        long cutoff = System.currentTimeMillis() - WINDOW_MS;
-        long uniqueCount = sellers.values().stream().filter(ts -> ts >= cutoff).count();
-        if (uniqueCount <= SELLER_THRESHOLD) return;
+        recentSellers.computeIfAbsent(mat, k -> new HashMap<>())
+                     .put(sellerUuid, System.currentTimeMillis());
 
         double stacks  = Math.ceil(amount / 64.0);
         double current = multipliers.getOrDefault(mat, 1.0);
         multipliers.put(mat, Math.max(FLOOR, current - stacks * DECAY_PER_STACK));
         saveState();
+    }
+
+    public void resetMarket() {
+        multipliers.clear();
+        recentSellers.clear();
+        saveState();
+    }
+
+    // Returns up to n items sorted by most-depressed multiplier (lowest first)
+    public List<Map.Entry<Material, Double>> getTopDepressedItems(int n) {
+        return multipliers.entrySet().stream()
+            .filter(e -> prices.containsKey(e.getKey()) && e.getValue() < 1.0)
+            .sorted(Map.Entry.comparingByValue())
+            .limit(n)
+            .collect(java.util.stream.Collectors.toList());
     }
 
     public void recoverPrices() {

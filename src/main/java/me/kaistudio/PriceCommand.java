@@ -44,27 +44,18 @@ public class PriceCommand {
 
                 MarketManager.PriceEntry base = market.getBaseEntry(mat);
                 double multiplier = market.getMultiplier(mat);
-                int pct = (int)(multiplier * 100);
-
-                // Current payout for the base quantity at current market rate
+                int pctChange = (int) Math.round((multiplier - 1.0) * 100); // 0 or negative
                 int currentPayout = market.calculatePayout(mat, base.qty());
 
-                NamedTextColor priceColor = pct >= 100 ? NamedTextColor.GREEN
-                    : pct <= 30 ? NamedTextColor.RED : NamedTextColor.YELLOW;
+                String pctStr = pctChange + "%"; // e.g. "0%" or "-25%"
+                NamedTextColor pctColor = pctChange == 0 ? NamedTextColor.GRAY
+                    : pctChange >= -20 ? NamedTextColor.YELLOW : NamedTextColor.RED;
 
-                String baseStr    = MarketManager.formatNuggets(base.nuggets());
-                String currentStr = MarketManager.formatNuggets(currentPayout);
-                String qtyLabel   = base.qty() + "x " + MarketManager.formatMaterial(mat);
-
-                Component msg = Component.text(qtyLabel + " — ", NamedTextColor.GOLD)
-                    .append(Component.text(currentStr, priceColor));
-
-                if (pct < 100) {
-                    msg = msg.append(Component.text(
-                        "  (base: " + baseStr + " | market: " + pct + "%)", NamedTextColor.GRAY));
-                }
-
-                player.sendMessage(msg);
+                player.sendMessage(
+                    Component.text(base.qty() + "x " + MarketManager.formatMaterial(mat) + " for ", NamedTextColor.GOLD)
+                        .append(Component.text(MarketManager.formatNuggets(currentPayout), NamedTextColor.WHITE))
+                        .append(Component.text("  " + pctStr, pctColor))
+                );
                 return 1;
             })
             .build();
