@@ -145,7 +145,7 @@ public class BloodMoonManager {
         originalMonsterTicks.clear();
         for (World world : Bukkit.getWorlds()) {
             int limit = world.getMonsterSpawnLimit();
-            int ticks = world.getTicksPerMonsterSpawns();
+            int ticks = (int) world.getTicksPerMonsterSpawns();
             originalMonsterLimit.put(world, limit);
             originalMonsterTicks.put(world, ticks);
             world.setMonsterSpawnLimit(limit * 2);
