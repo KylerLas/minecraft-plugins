@@ -112,7 +112,22 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (deathStateManager.isDead(player.getUniqueId())) {
-                    player.sendActionBar(Component.text("☠ You are in Purgatory — type /pay death to revive", NamedTextColor.RED));
+                    int totalNuggets = deathStateManager.getTotalNuggets(player);
+                    int debt = (int) Math.floor(totalNuggets * deathStateManager.getDeathTaxRate(player.getUniqueId()));
+                    String tier = insuranceManager.getPlayerTier(player.getUniqueId());
+                    String barMsg;
+                    if (totalNuggets == 0) {
+                        barMsg = "☠ Purgatory — No gold owed  |  /pay death to revive";
+                    } else if (tier != null && insuranceManager.isEnabled()) {
+                        int baseDebt = (int) Math.floor(totalNuggets * insuranceManager.getBaseDeathPenalty());
+                        int saved = baseDebt - debt;
+                        barMsg = "☠ Purgatory — Pay " + GoldUtil.format(debt)
+                            + "  |  " + InsuranceManager.cap(tier) + " saves " + GoldUtil.format(saved)
+                            + "  |  /pay death";
+                    } else {
+                        barMsg = "☠ Purgatory — Pay " + GoldUtil.format(debt) + "  |  /pay death to revive";
+                    }
+                    player.sendActionBar(Component.text(barMsg, NamedTextColor.RED));
                     continue;
                 }
 
