@@ -61,6 +61,9 @@ public class GoldScanner implements Runnable {
             // Ender chest — always the player's own private inventory, scanned directly
             nuggets += GoldUtil.countNuggets(player.getEnderChest());
 
+            // Floor items (death drops and manual drops owned by this player)
+            nuggets += plugin.getGoldDropListener().countNuggets(player.getUniqueId());
+
             // Placed gold blocks — verify each still exists and prune stale entries
             for (Location loc : plugin.getChestTracker().getGoldBlockLocations(player.getUniqueId())) {
                 if (loc.getBlock().getType() == org.bukkit.Material.GOLD_BLOCK) {
