@@ -98,6 +98,7 @@ public class AnnouncePlugin extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new GoldRestrictionListener(), this);
         Bukkit.getPluginManager().registerEvents(new DeathStateListener(this), this);
         Bukkit.getPluginManager().registerEvents(new InsuranceListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new StatisticsListener(this), this);
         Bukkit.getPluginManager().registerEvents(new MarketTellerListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BloodMoonListener(this), this);
         Bukkit.getPluginManager().registerEvents(new BankProtectionListener(this), this);
@@ -240,6 +241,7 @@ public class AnnouncePlugin extends JavaPlugin {
             event.registrar().register(new GoldScoreCommand(this).build(), "View the gold leaderboard");
             event.registrar().register(new InsuranceCommand(this).build(), "Manage your Insurance Inc policy");
             event.registrar().register(new DeathPenaltyCommand(this).build(), "Set the base death penalty percentage (OP only)");
+            event.registrar().register(new StatisticsCommand(this).build(), "View and manage server statistics");
             event.registrar().register(new PriceCommand(this).build(), "Check the current bank price of the item in your hand");
             event.registrar().register(new BankCommand(this).build(), "Bank admin commands — reset, leaderboard");
             event.registrar().register(new PurgeCommand(this).build(), "Manage the Purge event");

@@ -166,9 +166,12 @@ public class RequestCommand {
         player.sendMessage(Component.text("Sent " + GoldUtil.format(req.nuggets) + " to " + req.fromName + ".", NamedTextColor.GREEN));
         requester.sendMessage(Component.text(player.getName() + " accepted your request for " + GoldUtil.format(req.nuggets) + ".", NamedTextColor.GREEN));
 
+        int goldAmount = (int) Math.round(req.nuggets / 9.0);
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             plugin.getDatabaseManager().incrementTransactionsSent(player.getUniqueId().toString());
             plugin.getDatabaseManager().incrementTransactionsReceived(req.fromUUID.toString());
+            plugin.getDatabaseManager().addGoldSpent(player.getUniqueId().toString(), goldAmount);
+            plugin.getDatabaseManager().addGoldReceived(req.fromUUID.toString(), goldAmount);
         });
 
         plugin.getRequestManager().remove(req.id);

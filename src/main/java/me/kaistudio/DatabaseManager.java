@@ -88,6 +88,42 @@ public class DatabaseManager {
         );
     }
 
+    // ── Statistics ────────────────────────────────────────────────────────────
+
+    public void incrementMobKills(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("mobKills", 1));
+    }
+
+    public void incrementPvpKillsDuringPurge(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("pvpKillsDuringPurge", 1));
+    }
+
+    public void incrementBossesKilled(String playerUuid) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("bossesKilled", 1));
+    }
+
+    public void addGoldReceived(String playerUuid, int goldAmount) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("goldReceived", goldAmount));
+    }
+
+    public void addGoldSpent(String playerUuid, int goldAmount) {
+        players.updateOne(Filters.eq("playerUuid", playerUuid), Updates.inc("goldSpent", goldAmount));
+    }
+
+    public void resetAllPlayerStats() {
+        players.updateMany(new org.bson.Document(),
+            Updates.combine(
+                Updates.set("deaths", 0),
+                Updates.set("mobKills", 0),
+                Updates.set("pvpKillsDuringPurge", 0),
+                Updates.set("goldReceived", 0),
+                Updates.set("goldSpent", 0),
+                Updates.set("bossesKilled", 0),
+                Updates.set("transactionsSent", 0),
+                Updates.set("transactionsReceived", 0)
+            ));
+    }
+
     // ── Insurance config ─────────────────────────────────────────────────────
 
     public Document getInsuranceConfig() {

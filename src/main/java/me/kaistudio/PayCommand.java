@@ -114,9 +114,12 @@ public class PayCommand {
         sender.sendMessage(Component.text("Paid " + amountStr + " to " + target.getName() + ".", NamedTextColor.GREEN));
         target.sendMessage(Component.text(sender.getName() + " paid you " + amountStr + ".", NamedTextColor.GREEN));
 
+        int goldAmount = (int) Math.round(nuggets / 9.0);
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             plugin.getDatabaseManager().incrementTransactionsSent(sender.getUniqueId().toString());
             plugin.getDatabaseManager().incrementTransactionsReceived(target.getUniqueId().toString());
+            plugin.getDatabaseManager().addGoldSpent(sender.getUniqueId().toString(), goldAmount);
+            plugin.getDatabaseManager().addGoldReceived(target.getUniqueId().toString(), goldAmount);
         });
 
         return 1;
