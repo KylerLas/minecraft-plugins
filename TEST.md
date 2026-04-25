@@ -16,6 +16,7 @@
 - [ ] Place a gold block, wait for scan — DB value increases by 9
 - [ ] Break your own gold block — DB value drops back down
 - [ ] Place a chest, put gold in it, wait for scan — chest gold included in total
+- [ ] Remove a gold block by non-plugin means (e.g. world edit) — next scan prunes stale tracker entry, value corrects itself
 
 ## Block & Chest Protection
 - [ ] Break another player's chest — blocked with red message
@@ -57,15 +58,38 @@
 - [ ] `/goldscore` — players sorted by gold, top 3 in gold/silver/bronze colours
 - [ ] Sidebar scoreboard visible on right side of screen, updates every 10s
 
+## Bank / Market
+- [ ] `/spawnteller` (OP) — Bank Teller NPC spawns at your location
+- [ ] Stand near teller holding a listed item — action bar shows sell preview with current price and % change
+- [ ] Stand near teller holding an unlisted item — no sell preview shown
+- [ ] Right-click teller — sells held item stack, gold added to inventory
+- [ ] Sell same item repeatedly — price depresses, % shown in red when heavily sold
+- [ ] Wait for recovery interval — price nudges back toward base
+- [ ] `/price` holding a listed item — shows qty, current payout, and % change from base
+- [ ] `/price` holding an unlisted item — "cannot be sold at the bank"
+- [ ] `/price` with empty hand — prompt to hold an item
+- [ ] `/bank leaderboard` — shows top 10 most depressed items with current payout
+- [ ] `/bank reset` (OP) — resets all prices to base, confirmed in chat
+- [ ] `/bank percentage <minutes> <pct>` (OP) — updates recovery rate, confirmed in chat
+- [ ] `/bank depercentage <amount>` (OP) — updates decay multiplier, confirmed in chat
+- [ ] `/bank debug` — shows loaded price count and whether IRON_INGOT/DIAMOND are listed
+- [ ] Non-OP tries `/bank reset` — permission denied
+
 ## Ghost Death State
 
-### Entering ghost mode
-- [ ] Die normally — after clicking Respawn, floating player skull appears above your head
+### Non-PvP deaths (purgatory applies)
+- [ ] Die from fall/lava/mob — after clicking Respawn, floating player skull appears above your head
 - [ ] Skull follows you as you move around the world
 - [ ] Other players can see your skull floating above you
+- [ ] Action bar shows purgatory reminder every second
 
-### World restrictions while dead
-- [ ] Try to break a block — blocked (no block break)
+### PvP deaths (no purgatory)
+- [ ] Get killed by another player — respawn normally, no skull, no death tax
+- [ ] Gold from inventory drops on floor — only you can pick it up, other players cannot
+- [ ] Non-gold items from inventory drop normally — anyone can pick them up
+
+### World restrictions while in purgatory
+- [ ] Try to break a block — blocked
 - [ ] Try to place a block — blocked
 - [ ] Try to open a chest — blocked
 - [ ] Try to press a button / lever — blocked
@@ -78,14 +102,19 @@
 - [ ] Disconnect while in ghost state — log back in, skull reappears and reminder message shown
 - [ ] Server restart while a player is in ghost state — skull reappears on next login, no orphan ArmorStands left in the world
 
+### Gold on the floor while in purgatory
+- [ ] Die with 30 gold in inventory — drops on floor, leaderboard and DB show 30 (not 0)
+- [ ] Items despawn after 5 minutes — leaderboard and DB drop back to 0
+
 ### `/pay death` — revival
 - [ ] Run `/pay death` while NOT dead — error message, nothing happens
-- [ ] Die with 0 gold across all sources — `/pay death` revives for free with message "No gold to pay"
-- [ ] Die with gold only in inventory — 50% taken from inventory, skull removed, movement and interaction restored
-- [ ] Die with gold only in chests/barrels — 50% pulled from chest inventories, skull removed
-- [ ] Die with placed gold blocks — blocks are broken silently (not dropped), 50% taken; if blocks overshoot debt, excess refunded to inventory
-- [ ] Die with 20 gold (2 blocks + 2 ingots) — both blocks broken, 8 gold refunded to inventory, 2 ingots untouched
-- [ ] Die with gold spread across blocks + chests + inventory — blocks drained first, then chests, then inventory; stops as soon as debt covered
+- [ ] Die with 0 gold across all sources — `/pay death` revives for free with "No gold to pay"
+- [ ] Die with gold only in inventory (drops to floor) — 50% taken from floor items, remainder stays on floor to pick up
+- [ ] Die with 30 gold on floor — pay death at 50%, 15 gold remains on floor
+- [ ] Die with gold in chests/barrels and nothing on floor — 50% pulled from chests
+- [ ] Die with placed gold blocks — blocks broken silently, overshoot refunded to inventory
+- [ ] Die with gold spread across floor + blocks + chests — floor drained first, then blocks, then chests, then ender chest, then inventory
+- [ ] Overshoot due to indivisible item (e.g. 1 ingot covers gap of 3 nuggets) — excess refunded as nuggets
 
 ## Insurance
 
@@ -95,6 +124,7 @@
 - [ ] Click [Decline] — nothing happens, no tier set
 - [ ] `/insurance gold` while already on Gold — "You are already on Gold insurance"
 - [ ] `/insurance status` — shows tier, death penalty %, next charge amount, minutes until next charge
+- [ ] `/insurance bronze|silver|gold` while insurance is offline — "Insurance Inc is currently offline"
 
 ### Billing cycle (20 minutes)
 - [ ] Wait 20 minutes while insured — gold deducted from inventory, "charged X gold" message
@@ -111,14 +141,15 @@
 ### Admin commands
 - [ ] `/insurance set gold 5 1.5` — updates Gold tier rates, confirmed in chat
 - [ ] `/deathpenalty 40` — updates base penalty to 40%, confirmed in chat
-- [ ] `/insurance off` — broadcasts "Insurance Inc is shutting down for 24 hours"; players with Gold tier now take base death penalty on death
-- [ ] `/insurance on` — insurance resumes; OP gets confirmation message
-- [ ] Non-OP tries `/insurance set` — no permission error
+- [ ] `/insurance off` — broadcasts "Insurance Inc is shutting down for 24 hours"
+- [ ] `/insurance off` then die (non-PvP) — death tax uses base penalty regardless of active tier
+- [ ] `/insurance on` — insurance resumes, OP gets confirmation
+- [ ] Non-OP tries `/insurance set` — no permission
 
-### Death penalty with insurance
-- [ ] Die with Gold tier active — death penalty is 8% not 50%
-- [ ] Die with no insurance and base penalty at 50% — `/pay death` takes 50%
-- [ ] `/insurance off` then die with Gold tier — takes base penalty (50%)
+### Death penalty with insurance (non-PvP only)
+- [ ] Die (non-PvP) with Gold tier active — death penalty is 8% not 50%
+- [ ] Die (non-PvP) with no insurance — `/pay death` takes 50%
+- [ ] Get killed by a player with Gold tier active — no purgatory, no tax charged
 
 ## Misc
 - [ ] Kill a chicken — Court Officer spawns, fine note drops, fine logged to `minecraft_fines`
