@@ -43,7 +43,7 @@ public class MarketManager {
     public MarketManager(AnnouncePlugin plugin) {
         this.plugin = plugin;
         stateFile = new File(plugin.getDataFolder(), "market_state.yml");
-        plugin.saveResource("market_prices.yml", false); // extract default if missing
+        plugin.saveResource("market_prices.yml", true); // always overwrite from JAR so format stays current
         loadPrices();
         loadState();
         scanForTellers();
